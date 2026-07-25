@@ -1,13 +1,13 @@
 {
-  "name": "Ontario fishing",
-  "short_name": "ON fishing",
+  "name": "ON Fishing Regulation",
+  "short_name": "ON Fishing",
   "description": "Ontario's 20 fishing zones with seasons, limits and what is open right now.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#F0F4F6",
-  "theme_color": "#07496B",
+  "background_color": "#f2f2f7",
+  "theme_color": "#f9f9f9",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
