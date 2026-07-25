@@ -708,9 +708,17 @@ function paintTiles(){
     c.classList.toggle('on',Number(c.dataset.zone)===selectedZone));
 }
 /* ---------------- detail navigation stack ---------------- */
-function titleOf(v){ return v.type==='zone'?('Zone '+v.z) : v.type==='fish'?v.name : v.w.n; }
+function titleOf(v){
+  if(v.type==='zone') return 'Zone '+v.z;
+  if(v.type==='fish') return v.name;
+  if(v.type==='catchlog') return 'Catch log';
+  if(v.type==='shared') return sharedTitle(v.item);
+  return v.w.n;
+}
 function subOf(v){
   if(v.type==='zone') return (zoneMeta[v.z]&&zoneMeta[v.z].name)?esc(zoneMeta[v.z].name):'Seasons and limits';
+  if(v.type==='catchlog'){ const n=loadCatches().length; return n?(n+(n===1?' catch logged':' catches logged')):'On your phone, ready to share'; }
+  if(v.type==='shared') return 'Shared with you';
   if(v.type==='fish'){ const m=fishRegInfo(v.name).merged; let n=0,open=0; for(let z=1;z<=20;z++) if(m[z]){ n++; if(seasonStatus(m[z].rec.season).status==='open') open++; }
     return open+' of '+n+' zones open now'; }
   if(v.type==='place'){ const kind=/park/i.test(v.w.ptype||'')?v.w.ptype:'Town';
@@ -723,6 +731,8 @@ function bodyOf(v){
   if(v.type==='fish') return fishBody(v.name);
   if(v.type==='water') return waterBody(v.w);
   if(v.type==='place') return placeBody(v.w);
+  if(v.type==='catchlog') return catchlogBody();
+  if(v.type==='shared') return sharedBody(v.item);
   return '';
 }
 function paintNav(){
@@ -752,7 +762,8 @@ function wireBody(v){
     detailEl.querySelectorAll('.srow[data-z]').forEach(row=>row.onclick=()=>pushView({type:'zone',z:Number(row.dataset.z)}));
   } else if(v.type==='water'||v.type==='place'){
     const zb=document.getElementById('wzone'); if(zb&&v.w.z) zb.onclick=()=>pushView({type:'zone',z:Number(v.w.z)});
-  }
+  } else if(v.type==='catchlog'){ wireCatchlog();
+  } else if(v.type==='shared'){ wireShared(v.item); }
 }
 function applyMapForView(v){
   if(v.type==='zone'){ selectedZone=v.z; exploreSpecies=null; restyleZones(); paintTiles(); zoomToZone(v.z);
@@ -761,7 +772,7 @@ function applyMapForView(v){
     if(typeof setOverlay==='function' && typeof overlayOn!=='undefined' && !overlayOn) setOverlay(true);
     restyleZones(); paintTiles(); }
   else { exploreSpecies=null; restyleZones(); paintTiles();
-    if(IS_MAP && v.w.lat!=null) goToWater(v.w.n,v.w.lat,v.w.lng,null); }
+    if(IS_MAP && v.w && v.w.lat!=null) goToWater(v.w.n,v.w.lat,v.w.lng,null); }
 }
 function pushView(v){ navStack.push(v); paintNav(); }
 function replaceRoot(v){ navStack=[v]; paintNav(); }
@@ -1188,6 +1199,176 @@ function fillAboutStats(){
 }
 function openModal(el){ closeModals(); el.classList.add('on'); backdrop.classList.add('on'); el.scrollTop=0; }
 
+/* ==================================================================
+   Catch log + share
+   A private, on-device journal of what you catch, and a share that puts a
+   clean card and a #/shared/<data> deep link into the iMessage share sheet.
+   The link carries the whole catch (or day), so a recipient opens the exact
+   same card. No server, nothing tracked. share.js renders the card. */
+function clToast(msg){
+  var t=document.createElement('div'); t.className='cl-toast'; t.textContent=msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(function(){ t.classList.add('on'); });
+  setTimeout(function(){ t.classList.remove('on'); setTimeout(function(){ t.remove(); }, 240); }, 1900);
+}
+function pad2(n){ return (n<10?'0':'')+n; }
+function fishToday(){ var d=new Date(); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function dayKey(iso){ var d=new Date(iso); if(isNaN(d)) return String(iso).slice(0,10); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function fmtDayLabel(key){ var d=new Date(key+'T12:00:00'); if(isNaN(d)) return key;
+  return d.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'}); }
+function uidc(){ return 'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function cval(id){ var e=document.getElementById(id); return e?(e.value||''):''; }
+
+function loadCatches(){ try{ return JSON.parse(localStorage.getItem('onfish-catchlog')||'[]'); }catch(e){ return []; } }
+function saveCatches(a){ try{ localStorage.setItem('onfish-catchlog', JSON.stringify(a)); }catch(e){} }
+function addCatch(c){ var a=loadCatches(); a.unshift(c); saveCatches(a); }
+function delCatch(id){ saveCatches(loadCatches().filter(function(c){ return c.id!==id; })); }
+function groupByDay(cats){
+  var map={}, order=[];
+  cats.forEach(function(c){ var k=dayKey(c.when); if(!map[k]){ map[k]=[]; order.push(k); } map[k].push(c); });
+  order.sort(function(a,b){ return a<b?1:a>b?-1:0; });   // newest day first
+  return order.map(function(k){ return { date:k, items:map[k] }; });
+}
+
+function catchRow(c){
+  var bits=[]; if(c.z) bits.push('Zone '+c.z); if(c.water) bits.push(esc(c.water));
+  var size=(c.len!=null&&c.len!=='')?(c.len+' '+(c.unit||'cm')):'';
+  var line2=[size, c.rel?'Released':'Kept'].filter(Boolean).join(' · ');
+  return '<div class="srow cl-catch" data-id="'+esc(c.id)+'"><div class="col">'
+    +'<div class="nm">'+esc(c.sp)+'</div>'
+    +(bits.length?'<div class="mt">'+bits.join(' · ')+'</div>':'')
+    +'<div class="mt">'+line2+'</div>'
+    +(c.notes?'<div class="mt cl-note">“'+esc(c.notes)+'”</div>':'')
+    +'</div><div class="cl-actions">'
+    +'<button class="cl-share" data-share-catch="'+esc(c.id)+'">Share</button>'
+    +'<button class="cl-del" data-del-catch="'+esc(c.id)+'" aria-label="Delete this catch">✕</button>'
+    +'</div></div>';
+}
+function catchlogBody(){
+  var cats=loadCatches();
+  var speciesOpts=FISH_ID.map(function(f){ return '<option value="'+esc(f.name)+'">'+esc(f.name)+'</option>'; }).join('');
+  var zoneOpts=''; for(var z=1;z<=20;z++) zoneOpts+='<option value="'+z+'">Zone '+z+'</option>';
+  var form='<details class="blk cl-form" id="cl-form"><summary>Log a catch</summary><div class="body">'
+    +'<label class="cl-field"><span>Species</span><select id="cf-sp">'+speciesOpts+'</select></label>'
+    +'<label class="cl-field"><span>Zone</span><select id="cf-z">'+zoneOpts+'</select></label>'
+    +'<label class="cl-field"><span>Water</span><input id="cf-water" placeholder="Lake or river (optional)"></label>'
+    +'<div class="cl-row">'
+      +'<label class="cl-field grow"><span>Length</span><input id="cf-len" type="number" inputmode="decimal" min="0" step="0.1" placeholder="optional"></label>'
+      +'<label class="cl-field"><span>Unit</span><select id="cf-unit"><option>cm</option><option>in</option></select></label>'
+    +'</div>'
+    +'<div class="cl-row">'
+      +'<label class="cl-field grow"><span>Kept or released</span><select id="cf-rel"><option value="1">Released</option><option value="0">Kept</option></select></label>'
+      +'<label class="cl-field grow"><span>Date</span><input id="cf-date" type="date" value="'+fishToday()+'"></label>'
+    +'</div>'
+    +'<label class="cl-field"><span>Notes</span><textarea id="cf-notes" rows="2" placeholder="Bait, weather, who you were with (optional)"></textarea></label>'
+    +'<button class="btn" id="cf-save" style="width:100%;margin-top:6px">Save catch</button>'
+    +'</div></details>';
+  if(!cats.length) return form+'<p class="empty">No catches yet. Log your first one, then share the card straight to Messages.</p>';
+  var out=form;
+  groupByDay(cats).forEach(function(g){
+    out+='<div class="cl-day"><div class="cl-dayhead"><span class="seclabel grey">'+esc(fmtDayLabel(g.date))+'</span>'
+      +'<button class="cl-share cl-shareday" data-share-day="'+esc(g.date)+'">Share day</button></div>';
+    g.items.forEach(function(c){ out+=catchRow(c); });
+    out+='</div>';
+  });
+  return out;
+}
+function wireCatchlog(){
+  var save=document.getElementById('cf-save');
+  if(save) save.onclick=function(){
+    var sp=cval('cf-sp'); if(!sp){ return; }
+    var lenRaw=cval('cf-len').trim();
+    var len=(lenRaw!==''&&!isNaN(parseFloat(lenRaw)))?parseFloat(lenRaw):null;
+    var f=FISH_ID.filter(function(x){ return x.name===sp; })[0];
+    var date=cval('cf-date');
+    var when=date?new Date(date+'T12:00:00').toISOString():new Date().toISOString();
+    var notes=cval('cf-notes').trim();
+    addCatch({ id:uidc(), sp:sp, img:f?f.img:'', z:Number(cval('cf-z'))||null,
+      water:cval('cf-water').trim(), len:len, unit:cval('cf-unit')||'cm',
+      rel:cval('cf-rel')==='1', when:when, notes:notes.length>240?notes.slice(0,237)+'…':notes });
+    if(typeof buzz==='function') buzz(10);
+    clToast('Catch logged');
+    replaceRoot({type:'catchlog'});
+  };
+  detailEl.querySelectorAll('[data-share-catch]').forEach(function(b){ b.onclick=function(){ shareCatch(b.getAttribute('data-share-catch')); }; });
+  detailEl.querySelectorAll('[data-share-day]').forEach(function(b){ b.onclick=function(){ shareDay(b.getAttribute('data-share-day')); }; });
+  detailEl.querySelectorAll('[data-del-catch]').forEach(function(b){ b.onclick=function(){ delCatch(b.getAttribute('data-del-catch')); replaceRoot({type:'catchlog'}); }; });
+}
+function openCatchlog(){ if(typeof closeModals==='function') closeModals(); if(typeof exitMapTab==='function') exitMapTab(); replaceRoot({type:'catchlog'}); var p=document.getElementById('panel'); if(p) p.scrollTop=0; }
+
+/* ---- item <-> card (sender and recipient build the card the same way) ---- */
+function catchShareItem(c){
+  return { t:'fish-catch', sp:c.sp, z:c.z||null, water:c.water||'',
+    len:(c.len!=null&&c.len!=='')?c.len:null, unit:c.unit||'cm', rel:!!c.rel, when:c.when,
+    notes:c.notes?(c.notes.length>200?c.notes.slice(0,197)+'…':c.notes):'' };
+}
+function catchCard(it){
+  var chips=[];
+  if(it.len!=null) chips.push({label: it.len+' '+(it.unit||'cm')});
+  chips.push({label: it.rel?'Released':'Kept'});
+  if(it.z) chips.push({label:'Zone '+it.z});
+  var sub=[it.water, it.z?('Zone '+it.z):''].filter(Boolean).join(' · ');
+  return { eyebrow:'on-fishing', kicker:'Catch', emoji:'🎣', title:it.sp,
+    subtitle:sub, chips:chips.slice(0,4), meta:fmtDayLabel(dayKey(it.when)) };
+}
+function dayShareItem(key){
+  var items=loadCatches().filter(function(c){ return dayKey(c.when)===key; });
+  var waters=[]; var zones=[];
+  items.forEach(function(c){ if(c.water&&waters.indexOf(c.water)<0) waters.push(c.water); if(c.z&&zones.indexOf(c.z)<0) zones.push(c.z); });
+  return { t:'fish-day', date:key, when:(items[0]?items[0].when:key+'T12:00:00.000Z'),
+    water:waters.join(', '), zones:zones.sort(function(a,b){return a-b;}),
+    cs:items.map(function(c){ return { sp:c.sp, z:c.z||null, len:(c.len!=null&&c.len!=='')?c.len:null, unit:c.unit||'cm', rel:!!c.rel }; }) };
+}
+function dayCard(it){
+  var cs=it.cs||[]; var species={}; var counts={};
+  cs.forEach(function(c){ species[c.sp]=1; counts[c.sp]=(counts[c.sp]||0)+1; });
+  var chips=Object.keys(counts).slice(0,3).map(function(sp){ return { label: sp+(counts[sp]>1?(' ×'+counts[sp]):'') }; });
+  var sub=[it.water, (it.zones&&it.zones.length)?('Zone '+it.zones.join(', ')):''].filter(Boolean).join(' · ');
+  var nSp=Object.keys(species).length;
+  return { eyebrow:'on-fishing', kicker:'Day on the water', emoji:'🐟',
+    title: cs.length+(cs.length===1?' fish, ':' fish, ')+nSp+(nSp===1?' species':' species'),
+    subtitle:sub, chips:chips.slice(0,4), meta:fmtDayLabel(it.date) };
+}
+function shareCatch(id){
+  var c=loadCatches().filter(function(x){ return x.id===id; })[0]; if(!c) return;
+  if(!window.OnShare){ clToast('Sharing is not available'); return; }
+  var item=catchShareItem(c);
+  OnShare.share({ card:catchCard(item), item:item,
+    text:'I caught a '+c.sp+(c.z?(' in Zone '+c.z):'')+' in Ontario.' })
+    .then(function(r){ if(r==='fallback') clToast('Link copied, card saved'); });
+}
+function shareDay(key){
+  var item=dayShareItem(key); if(!item.cs.length) return;
+  if(!window.OnShare){ clToast('Sharing is not available'); return; }
+  OnShare.share({ card:dayCard(item), item:item,
+    text:'My day on the water in Ontario: '+item.cs.length+(item.cs.length===1?' fish.':' fish.') })
+    .then(function(r){ if(r==='fallback') clToast('Link copied, card saved'); });
+}
+
+/* ---- receive view (#/shared/<data>) ---- */
+function sharedTitle(it){ if(!it) return 'Shared'; if(it.t==='fish-day') return 'A day on the water'; return it.sp||'A catch'; }
+function sharedBody(it){
+  if(!it || (it.t!=='fish-catch' && it.t!=='fish-day'))
+    return '<p class="empty">This shared link could not be opened. It may be from a newer version of the app.</p>';
+  return '<div class="cl-recv"><div class="shared-card-wrap"><img id="shared-card-img" class="shared-card" alt="Shared '+esc(sharedTitle(it))+'"></div></div>'
+    +'<button class="btn" id="recv-log" style="width:100%">Start your own catch log</button>'
+    +'<button class="btn ghost" id="recv-explore" style="width:100%;margin-top:8px">Explore Ontario fishing zones</button>';
+}
+function wireShared(it){
+  if(it && (it.t==='fish-catch'||it.t==='fish-day') && window.OnShare){
+    var card=it.t==='fish-day'?dayCard(it):catchCard(it);
+    OnShare.makeCard(card).then(function(b){ if(!b) return; var img=document.getElementById('shared-card-img'); if(img) img.src=URL.createObjectURL(b); });
+  }
+  var a=document.getElementById('recv-log'); if(a) a.onclick=openCatchlog;
+  var e=document.getElementById('recv-explore'); if(e) e.onclick=function(){ goHomeNav(); };
+}
+
+/* ---- catch-log entry points (home card + More) ---- */
+(function(){
+  var b=document.getElementById('clentry'); if(b) b.onclick=openCatchlog;
+  var b2=document.getElementById('clentry-more'); if(b2) b2.onclick=openCatchlog;
+})();
+
 /* ---- shared footer tab bar ---- */
 var fishLearnRendered=false;
 function exitMapTab(){ document.body.classList.remove('tab-map');
@@ -1291,7 +1472,13 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModals(); });
 });
 
 /* ---------------- deep links ---------------- */
-function fromHash(){ const m=(location.hash||'').match(/zone=(\d+)/); if(m) selectZone(Number(m[1])); }
+if(window.OnShare) OnShare.config({ app:'on-fishing', base:'https://katsuma0.github.io/on-fishing/', accent:'#14804a' });
+function fromHash(){
+  const h=location.hash||'';
+  const s=h.match(/^#\/shared\/(.+)$/);
+  if(s){ const it=window.OnShare?OnShare.decode(s[1]):null; replaceRoot({type:'shared',item:it}); return; }
+  const m=h.match(/zone=(\d+)/); if(m) selectZone(Number(m[1]));
+}
 window.addEventListener('hashchange',fromHash);
 fromHash();
 
