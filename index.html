@@ -5,321 +5,304 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <title>ON Fishing Regulation</title>
 <meta name="description" content="Ontario's 20 fishing zones with seasons, limits and what is open right now."/>
-<meta name="theme-color" content="#07496B"/>
+<meta name="theme-color" content="#f9f9f9" media="(prefers-color-scheme: light)"/>
+<meta name="theme-color" content="#1e1e1e" media="(prefers-color-scheme: dark)"/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="icon" type="image/png" href="icon-192.png"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script>/* shared themes: on katsuma0.github.io both apps read Site Journal's theme */
-(function(){try{var v=JSON.parse(localStorage.getItem('site-journal-theme-vars')||'null');if(v&&v.vars){var d=document.documentElement;for(var k in v.vars)d.style.setProperty(k,v.vars[k]);var mc=document.querySelector('meta[name=theme-color]');if(mc&&v.tc)mc.setAttribute('content',v.tc);}}catch(e){}})();
-/* inside Site Journal's pull-down map with no theme set, wear Ontario Parks green */
-(function(){try{
-  if(!/embed=parks/.test(location.hash||''))return;
-  if(localStorage.getItem('site-journal-theme-vars'))return;
-  var v={'--paper':'#F1F6F1','--card':'#FFFFFF','--ink':'#0F1F17','--forest':'#00753A','--forest-2':'#18A05A',
-    '--forest-press':'#005C2C','--green-tint':'#E7F3EB','--green-tint-2':'#D6EBDC','--moss':'#40564B',
-    '--mist':'#E4EDE4','--mist-2':'#C7D7C9','--line':'#D3E0D4'};
-  var d=document.documentElement; for(var k in v)d.style.setProperty(k,v[k]);
-}catch(e){}})();</script>
+<script>/* Appearance: honour the system by default; an in-app toggle can pin light or dark. */
+(function(){try{var a=localStorage.getItem('onfish-appearance');if(a==='light'||a==='dark')document.documentElement.setAttribute('data-theme',a);}catch(e){}})();</script>
 <style>
+  /* =======================================================================
+     ON Fishing Regulation, iOS design system (shared with ON Wildlife / ON Camp).
+     A vanilla-CSS approximation of native iOS: San Francisco system font,
+     grouped surfaces, translucent bars, iOS controls, full light and dark
+     support and safe-area handling. The zone map keeps its own treatment.
+     ======================================================================= */
   :root{
-    /* water blue by default; a Site Journal theme overrides these when one is set */
-    --paper:#F0F4F6; --card:#FFFFFF; --ink:#0E1B22; --forest:#005F87; --forest-2:#2E9AC4;
-    --forest-press:#004A6A; --green-tint:#E6F1F6; --green-tint-2:#D3E7F0; --moss:#47565E;
-    --mist:#E3EBEF; --mist-2:#C5D5DD; --line:#D2DFE6; --amber:#EFBF25; --amber-soft:#FBEEDC;
-    --danger:#B0574A;
-    --r:16px; --r-sm:12px; --r-xs:8px;
-    --gap-s:6px; --gap-m:10px; --gap-l:12px;
-    --pad-card:14px 16px; --pad-row:12px 14px;
-    --shadow-sm:0 1px 2px rgba(14,27,34,.06);
-    --shadow:0 2px 12px rgba(14,27,34,.08);
-    --shadow-btn:0 3px 10px rgba(0,95,135,.30);
+    --tint:#14804a; --tint-press:#0f6b3d; --tint-soft:rgba(20,128,74,.12); --on-tint:#fff;
+    --bg:#f2f2f7; --bg-elevated:#fff; --bg-secondary:#efeff4;
+    --bar:rgba(249,249,249,.82); --bar-border:rgba(0,0,0,.28);
+    --label:#000; --label-2:rgba(60,60,67,.75); --label-3:rgba(60,60,67,.3);
+    --separator:rgba(60,60,67,.29); --fill:rgba(120,120,128,.12); --fill-strong:rgba(120,120,128,.2);
+    --red:#d1372b; --orange:#ff9500; --green:#248a3d; --blue:#007aff;
+    --r:16px; --r-sm:12px; --r-xs:10px;
+    --sa-top:env(safe-area-inset-top,0px); --sa-bottom:env(safe-area-inset-bottom,0px);
+    --ease:cubic-bezier(.32,.72,0,1);
   }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --tint:#30d158; --tint-press:#28b84c; --tint-soft:rgba(48,209,88,.16); --on-tint:#05230f;
+      --bg:#000; --bg-elevated:#1c1c1e; --bg-secondary:#2c2c2e;
+      --bar:rgba(30,30,30,.8); --bar-border:rgba(255,255,255,.18);
+      --label:#fff; --label-2:rgba(235,235,245,.65); --label-3:rgba(235,235,245,.3);
+      --separator:rgba(84,84,88,.6); --fill:rgba(120,120,128,.24); --fill-strong:rgba(120,120,128,.36);
+      --red:#ff6961; --orange:#ff9f0a; --green:#30d158; --blue:#0a84ff;
+    }
+  }
+  :root[data-theme='light']{color-scheme:light;
+    --tint:#14804a; --tint-press:#0f6b3d; --tint-soft:rgba(20,128,74,.12); --on-tint:#fff;
+    --bg:#f2f2f7; --bg-elevated:#fff; --bg-secondary:#efeff4; --bar:rgba(249,249,249,.82); --bar-border:rgba(0,0,0,.28);
+    --label:#000; --label-2:rgba(60,60,67,.75); --label-3:rgba(60,60,67,.3); --separator:rgba(60,60,67,.29);
+    --fill:rgba(120,120,128,.12); --fill-strong:rgba(120,120,128,.2);
+    --red:#d1372b; --orange:#ff9500; --green:#248a3d; --blue:#007aff;}
+  :root[data-theme='dark']{color-scheme:dark;
+    --tint:#30d158; --tint-press:#28b84c; --tint-soft:rgba(48,209,88,.16); --on-tint:#05230f;
+    --bg:#000; --bg-elevated:#1c1c1e; --bg-secondary:#2c2c2e; --bar:rgba(30,30,30,.8); --bar-border:rgba(255,255,255,.18);
+    --label:#fff; --label-2:rgba(235,235,245,.65); --label-3:rgba(235,235,245,.3); --separator:rgba(84,84,88,.6);
+    --fill:rgba(120,120,128,.24); --fill-strong:rgba(120,120,128,.36);
+    --red:#ff6961; --orange:#ff9f0a; --green:#30d158; --blue:#0a84ff;}
+
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;height:100%;background:var(--paper);color:var(--ink);
-    font-family:"Hanken Grotesk",system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
-  button,input,select{font-family:inherit}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--label);
+    font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue','Segoe UI',Roboto,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.45}
+  body{overscroll-behavior-y:none}
+  button,input,select{font-family:inherit;color:inherit}
+  button{border:0;background:none;cursor:pointer;font:inherit}
+  a{color:var(--tint);text-decoration:none}
+  :focus-visible{outline:2.5px solid var(--tint);outline-offset:2px;border-radius:6px}
 
   /* layout ------------------------------------------------------------- */
   #app{display:flex;height:100dvh;width:100%}
-  /* isolation keeps Leaflet's internal z-indexes (up to 1000) inside the map,
-     so they can never paint over the panel or the sheet */
   #mapwrap{position:relative;flex:1 1 auto;min-width:0;isolation:isolate;z-index:0}
-  #map{position:absolute;inset:0;background:var(--mist)}
+  #map{position:absolute;inset:0;background:var(--bg-secondary);-webkit-touch-callout:none;-webkit-user-select:none}
   #panel{flex:0 0 44%;max-width:560px;min-width:340px;height:100%;overflow-y:auto;
-    background:var(--paper);border-left:1px solid var(--line);display:flex;flex-direction:column}
-  .inner{width:100%;max-width:720px;margin:0 auto;padding:0 18px;flex:1 0 auto}
+    background:var(--bg);border-left:.5px solid var(--separator);display:flex;flex-direction:column}
+  .inner{width:100%;max-width:720px;margin:0 auto;padding:0 16px;flex:1 0 auto}
   @media (max-width:860px){
     #app{display:block;height:100dvh}
     #mapwrap{position:fixed;inset:0;z-index:0}
-    /* the panel becomes a sheet over the map: expanded leaves a strip of map
-       at the top, minimized leaves a grabbable strip at the bottom */
-    /* the page covers the map completely; pull down from the very top to reveal it */
     #panel{position:fixed;left:0;right:0;bottom:0;width:100%;max-width:none;min-width:0;
-      height:100dvh;z-index:20;border-left:none;background:var(--paper);
+      height:100dvh;z-index:20;border-left:none;background:var(--bg);
       overflow-y:auto;overscroll-behavior:contain;
-      transition:transform .34s cubic-bezier(.32,1.22,.38,1)}
-    #panel.min,#panel.drag{border-radius:16px 16px 0 0;box-shadow:0 -8px 40px rgba(19,32,25,.22)}
-    /* the strip shows grabber, eyebrow, title and version, same as Site Journal;
-       the appbar slides up over its notch padding with a transform so nothing reflows */
-    #panel.min{transform:translateY(calc(100% - 106px - env(safe-area-inset-bottom)));overflow:hidden}
-    #panel .appbar{transition:transform .34s cubic-bezier(.32,1.22,.38,1)}
+      transition:transform .38s var(--ease)}
+    #panel.min,#panel.drag{border-radius:12px 12px 0 0;box-shadow:0 -1px 0 var(--separator),0 -12px 40px rgba(0,0,0,.28)}
+    #panel.min{transform:translateY(calc(100% - 108px - env(safe-area-inset-bottom)));overflow:hidden}
+    #panel .appbar{transition:transform .38s var(--ease)}
     #panel.min .appbar{transform:translateY(calc(-1 * env(safe-area-inset-top)))}
     #panel.drag{transition:none}
     #panel .pullwrap{display:none}
     #panel.min .pullwrap,#panel.drag .pullwrap{display:block}
-    .pullwrap{position:sticky;top:0;z-index:5;background:var(--paper);
-      padding:9px 0 7px;border-radius:16px 16px 0 0;touch-action:none;cursor:grab}
-    .pullbar{width:40px;height:4px;border-radius:99px;background:var(--mist-2);margin:0 auto}
+    .pullwrap{position:sticky;top:0;z-index:5;background:var(--bg);
+      padding:8px 0 6px;border-radius:12px 12px 0 0;touch-action:none;cursor:grab}
+    .pullbar{width:36px;height:5px;border-radius:3px;background:var(--label-3);margin:0 auto}
   }
   @media (min-width:861px){ .pullwrap{display:none} }
 
-  /* type --------------------------------------------------------------- */
-  /* header, per the measured Site Journal spec */
-  .appbar{padding:calc(20px + env(safe-area-inset-top)) 0 14px}
-  .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--forest)}
+  /* header ------------------------------------------------------------- */
+  .appbar{padding:calc(16px + env(safe-area-inset-top)) 0 8px}
+  .eyebrow{font-size:13px;font-weight:400;letter-spacing:.4px;text-transform:uppercase;color:var(--label-2)}
   .titlebar{display:flex;align-items:baseline;justify-content:space-between;gap:9px}
-  h1{font-weight:800;font-size:30px;letter-spacing:-.02em;margin:5px 0 0;cursor:pointer}
-  .ver{appearance:none;border:none;background:none;cursor:pointer;font-family:inherit;
-    font-weight:800;font-size:15px;letter-spacing:-.02em;color:var(--ink);white-space:nowrap;
-    padding:0;margin:5px 0 0}
-  .sub{color:var(--moss);font-size:13.5px;margin-top:5px;line-height:1.4}
-  .sub a{color:var(--forest);text-underline-offset:2px}
-  .seclabel{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
-    color:var(--moss);margin:22px 2px 12px;display:flex;align-items:center;gap:var(--gap-m)}
-  .seclabel::after{content:"";flex:1;height:1px;background:var(--line)}
-  .zhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 2px}
-  .zhead h2{font-size:20px;font-weight:800;letter-spacing:-.01em;color:var(--forest);margin:0}
-  .meta{font-size:13px;color:var(--moss);margin:4px 0 0;font-variant-numeric:tabular-nums}
-  /* one back control per page, top left, shows where it returns to */
-  .navback{appearance:none;border:none;background:none;font-family:inherit;cursor:pointer;
-    display:inline-flex;align-items:center;gap:3px;color:var(--forest);font-weight:700;font-size:14px;
-    padding:8px 10px 8px 0;margin:8px 0 2px;-webkit-tap-highlight-color:transparent;transition:transform .14s}
-  .navback:active{transform:scale(.96)}
+  h1{font-weight:700;font-size:34px;line-height:41px;letter-spacing:.37px;margin:2px 0 0;cursor:pointer}
+  .ver{appearance:none;font-weight:600;font-size:15px;color:var(--tint);white-space:nowrap;padding:6px 4px;margin:0}
+  .sub{color:var(--label-2);font-size:15px;margin-top:4px;line-height:1.4}
+  .sub a{color:var(--tint)}
+  .seclabel{font-size:13px;font-weight:400;letter-spacing:.4px;text-transform:uppercase;
+    color:var(--label-2);margin:22px 4px 8px}
+  .seclabel.grey{color:var(--label-2)}
+  .zhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 0 2px}
+  .zhead h2{font-size:28px;font-weight:700;letter-spacing:-.3px;color:var(--label);margin:0}
+  .meta{font-size:14px;color:var(--label-2);margin:4px 0 0;font-variant-numeric:tabular-nums}
+  .navback{appearance:none;display:inline-flex;align-items:center;gap:3px;color:var(--tint);
+    font-weight:400;font-size:17px;padding:8px 10px 8px 0;margin:6px 0 2px;transition:opacity .14s}
+  .navback:active{opacity:.4}
   .navback svg{flex:none}
-  .vtitle{font-size:24px;font-weight:800;letter-spacing:-.02em;color:var(--ink);margin:2px 0 0}
+  .vtitle{font-size:22px;font-weight:700;letter-spacing:-.3px;color:var(--label);margin:2px 0 0}
   .vhero{display:flex;gap:12px;align-items:flex-start;margin-top:2px}
-  .empty{font-size:13.5px;color:var(--moss);text-align:center;padding:34px 10px}
+  .empty{font-size:15px;color:var(--label-2);text-align:center;padding:40px 12px}
 
   /* controls ----------------------------------------------------------- */
-  .gsearch{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);
-    border-radius:12px;padding:12px 14px;margin:2px 0 12px}
-  .gsearch svg{flex:none;color:var(--moss)}
-  .gsearch input{border:none;background:none;outline:none;font-family:inherit;font-size:16px;width:100%;color:var(--ink)}
-  .gclear{appearance:none;border:none;background:none;color:var(--moss);cursor:pointer;font-size:16px;
-    line-height:1;padding:2px 4px;display:none}
+  .gsearch{display:flex;align-items:center;gap:6px;background:var(--fill-strong);
+    border-radius:10px;padding:0 10px;height:38px;margin:6px 0 12px}
+  .gsearch svg{flex:none;color:var(--label-2);width:17px;height:17px}
+  .gsearch input{border:none;background:none;outline:none;font-size:17px;width:100%;color:var(--label)}
+  .gsearch input::placeholder{color:var(--label-2)}
+  .gclear{appearance:none;color:var(--label-2);font-size:16px;line-height:1;padding:2px 4px;display:none}
   .gsearch.has .gclear{display:block}
   .gresults{margin:0 0 14px}
-  .gresult{width:100%;text-align:left;appearance:none;background:var(--card);border:1px solid var(--line);
-    border-radius:12px;padding:12px 14px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:10px}
-  .tag{flex:0 0 46px;width:46px;height:22px;display:flex;align-items:center;justify-content:center;align-self:center;margin:auto 0;
-    font-size:9.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;line-height:1;padding:0;
-    color:var(--paper);background:var(--forest);border-radius:99px}
-  .tag.fish{background:#18A05A}
-  .tag.water{background:#3E7CA6}
-  .tag.town{background:var(--amber)}
-  .tag.park{background:#00753A}
-  .tag.area{background:var(--amber)}
+  .gresult{width:100%;text-align:left;appearance:none;background:var(--bg-elevated);
+    border-radius:10px;padding:11px 14px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:12px;
+    transition:background .12s,transform .12s}
+  .gresult:active{background:var(--fill);transform:scale(.99)}
+  .tag{flex:0 0 46px;width:46px;height:22px;display:flex;align-items:center;justify-content:center;
+    font-size:9.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;line-height:1;padding:0;
+    color:#fff;background:var(--tint);border-radius:99px}
+  .tag.fish{background:var(--tint)} .tag.water{background:var(--blue)}
+  .tag.town{background:var(--orange)} .tag.park{background:#2f8f5b} .tag.area{background:var(--orange)}
   .grow{flex:1;min-width:0}
-  .gt{display:block;font-weight:700;font-size:15px}
-  .gs{display:block;font-size:12.5px;color:var(--moss);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .gnone{color:var(--moss);font-size:14px;padding:18px 6px;text-align:center;border:1px solid var(--line);border-radius:12px;background:var(--card)}
-  .seclabel.grey{color:var(--moss)}
-  .filters{display:flex;flex-wrap:wrap;gap:8px;margin:var(--gap-l) 0}
-  .fchip{display:inline-flex;align-items:center;justify-content:center;gap:var(--gap-s);
-    border:1px solid var(--line);background:var(--card);color:var(--moss);font-weight:700;
-    font-size:12.5px;border-radius:99px;padding:10px 14px;min-width:44px;cursor:pointer;
-    transition:background .12s,transform .14s}
-  .fchip.on{background:var(--forest);border-color:var(--forest);color:var(--paper)}
-  .fchip:active{transform:scale(.97)}
-  .fchip[disabled]{opacity:.38;cursor:default}
-  /* zone tiles: squares, Site Journal style */
-  /* two rows of ten */
-  .zonegrid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin:var(--gap-l) 0}
+  .gt{display:block;font-weight:400;font-size:17px;letter-spacing:-.2px;color:var(--label)}
+  .gs{display:block;font-size:13px;color:var(--label-2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .gnone{color:var(--label-2);font-size:15px;padding:20px 8px;text-align:center;background:var(--bg-elevated);border-radius:10px}
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+  .fchip{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    background:var(--fill-strong);color:var(--label);font-weight:500;font-size:15px;
+    border-radius:18px;padding:8px 15px;min-height:36px;cursor:pointer;transition:background .12s,transform .1s}
+  .fchip.on{background:var(--tint);color:var(--on-tint)}
+  .fchip:active{transform:scale(.95)}
+  .fchip[disabled]{opacity:.4;cursor:default}
+  a.fchip{text-decoration:none}
+  /* zone tiles: iOS rounded squares */
+  .zonegrid{display:grid;grid-template-columns:repeat(10,1fr);gap:8px;margin:12px 0}
   .ztile{position:relative;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
-    border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:800;font-size:14px;
-    border-radius:var(--r-xs);cursor:pointer;font-variant-numeric:tabular-nums;
-    transition:transform .14s,background .12s}
-  .ztile::after{content:"";position:absolute;inset:-7px}   /* 44pt effective tap area */
-  @media (max-width:520px){ .zonegrid{grid-template-columns:repeat(5,1fr);gap:6px} .ztile{font-size:15px} }
-  .ztile.on{background:var(--forest);border-color:var(--forest);color:var(--paper)}
-  .ztile:active{transform:scale(.97)}
-  .ztile[disabled]{opacity:.35;cursor:default}
-  .btn{border:none;background:var(--forest);color:var(--paper);font-weight:800;font-size:14px;
-    border-radius:99px;padding:13px 18px;cursor:pointer;box-shadow:var(--shadow-btn);
-    transition:transform .14s,background .12s}
-  .btn:active{transform:scale(.97);background:var(--forest-press)}
+    background:var(--bg-elevated);color:var(--label);font-weight:600;font-size:16px;
+    border-radius:10px;cursor:pointer;font-variant-numeric:tabular-nums;transition:transform .12s,background .12s}
+  .ztile::after{content:"";position:absolute;inset:-6px}
+  @media (max-width:520px){ .zonegrid{grid-template-columns:repeat(5,1fr)} }
+  .ztile.on{background:var(--tint);color:var(--on-tint)}
+  .ztile:active{transform:scale(.95)}
+  .ztile[disabled]{opacity:.4;cursor:default}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    background:var(--tint);color:var(--on-tint);font-weight:600;font-size:17px;
+    border-radius:12px;padding:13px 20px;cursor:pointer;transition:transform .08s,background .12s}
+  .btn:active{transform:scale(.975);background:var(--tint-press)}
 
   /* rows and cards ----------------------------------------------------- */
-  .rrow{display:flex;justify-content:space-between;align-items:center;width:100%;border:1px solid var(--line);
-    background:var(--card);color:var(--ink);font-weight:700;font-size:14.5px;border-radius:var(--r-sm);
-    padding:var(--pad-card);margin-bottom:var(--gap-m);gap:10px}
-  .rcount{color:var(--moss);font-weight:600;font-size:12.5px;text-align:right}
+  .rrow{display:flex;justify-content:space-between;align-items:center;width:100%;
+    background:var(--bg-elevated);color:var(--label);font-weight:400;font-size:17px;
+    border-radius:10px;padding:12px 16px;margin-bottom:8px;gap:10px;letter-spacing:-.2px}
+  .rcount{color:var(--label-2);font-weight:400;font-size:15px;text-align:right}
   .spwrap{display:flex;flex-wrap:wrap;gap:8px}
-  .spchip{display:inline-flex;border:1px solid var(--line);background:var(--card);color:var(--ink);
-    font-weight:700;font-size:12.5px;border-radius:99px;padding:8px 12px}
-  .srow{display:flex;align-items:flex-start;gap:var(--gap-m);width:100%;text-align:left;
-    border:1px solid var(--line);background:var(--card);border-radius:var(--r-sm);
-    padding:var(--pad-card);margin-bottom:var(--gap-m);color:var(--ink);
-    transition:border-color .15s,transform .14s}
+  .spchip{display:inline-flex;background:var(--fill-strong);color:var(--label);
+    font-weight:500;font-size:13px;border-radius:99px;padding:6px 12px}
+  .srow{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;
+    background:var(--bg-elevated);border-radius:10px;padding:12px 16px;margin-bottom:8px;color:var(--label);
+    transition:background .12s,transform .12s}
   button.srow{cursor:pointer}
-  button.srow:active{transform:scale(.985)}
+  button.srow:active{background:var(--fill);transform:scale(.99)}
   .srow .col{flex:1;min-width:0}
-  .srow .nm{font-size:16px;font-weight:700;letter-spacing:-.01em;color:var(--forest)}
-  .srow[data-st="closed"] .nm{color:#B0574A}
-  .srow[data-st="open"] .nm{color:var(--forest)}
-  .srow .mt{font-size:13px;color:var(--moss);margin-top:3px;line-height:1.45}
-  .pill{flex:none;font-weight:800;font-size:12.5px;border:1px solid var(--line);border-radius:99px;
-    padding:8px 13px;color:var(--forest);min-width:62px;text-align:center}
-  .pill.open{background:var(--forest);border-color:var(--forest);color:#FFFFFF}
-  .pill.closed{background:#B0574A;border-color:#B0574A;color:#FFFFFF}
-  .pill.unknown{background:var(--mist);border-color:transparent;color:var(--moss)}
+  .srow .nm{font-size:17px;font-weight:400;letter-spacing:-.2px;color:var(--label)}
+  .srow[data-st="closed"] .nm{color:var(--label)}
+  .srow .mt{font-size:14px;color:var(--label-2);margin-top:2px;line-height:1.4}
+  .pill{flex:none;font-weight:600;font-size:13px;border-radius:99px;
+    padding:5px 12px;color:var(--label-2);background:var(--fill-strong);min-width:62px;text-align:center}
+  .pill.open{background:var(--tint-soft);color:var(--tint)}
+  .pill.closed{background:rgba(209,55,43,.16);color:var(--red)}
+  .pill.unknown{background:var(--fill-strong);color:var(--label-2)}
 
-  details.blk{border:1px solid var(--line);background:var(--card);border-radius:var(--r-sm);
-    margin-bottom:var(--gap-m);overflow:hidden}
-  details.blk>summary{list-style:none;cursor:pointer;padding:var(--pad-card);font-weight:700;
-    font-size:14.5px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:8px}
+  details.blk{background:var(--bg-elevated);border-radius:10px;margin-bottom:8px;overflow:hidden}
+  details.blk>summary{list-style:none;cursor:pointer;padding:12px 16px;font-weight:400;
+    font-size:17px;color:var(--label);display:flex;justify-content:space-between;align-items:center;gap:8px}
   details.blk>summary::-webkit-details-marker{display:none}
-  details.blk .body{padding:0 16px 14px}
-  .rcount{color:var(--moss);font-weight:600;font-size:12.5px}
+  details.blk>summary:active{background:var(--fill)}
+  details.blk .body{padding:2px 16px 14px}
   .body ul{margin:0;padding-left:18px}
-  .body li{font-size:13px;color:var(--moss);line-height:1.5;margin-bottom:6px}
-  .wb{padding:8px 0;border-bottom:1px solid var(--line)}
+  .body li{font-size:15px;color:var(--label-2);line-height:1.5;margin-bottom:6px}
+  .wb{padding:9px 0;border-bottom:.5px solid var(--separator)}
   .wb:last-child{border-bottom:none}
-  .wb b{display:block;font-size:14px;color:var(--ink);margin-bottom:4px}
+  .wb b{display:block;font-size:15px;color:var(--label);margin-bottom:4px;font-weight:600}
 
   /* map overlay controls ------------------------------------------------ */
-  .loading{position:absolute;top:14px;left:64px;z-index:1000;background:var(--card);
-    border:1px solid var(--line);border-radius:99px;padding:9px 14px;font-size:12.5px;
-    font-weight:700;color:var(--moss);box-shadow:var(--shadow-sm)}
-  /* map toggles: the words stay put, the colour says on or off */
-  #togglezones,#toggleparks,#togglelabels{position:absolute;right:14px;z-index:1000;background:var(--card);
-    border:1px solid var(--line);border-radius:99px;padding:10px 16px;font-size:12.5px;white-space:nowrap;
-    font-weight:700;color:var(--moss);cursor:pointer;box-shadow:var(--shadow-sm);
-    transition:background .12s,transform .14s}
-  #togglezones{top:calc(14px + env(safe-area-inset-top))}
-  #toggleparks{top:calc(60px + env(safe-area-inset-top))}
-  #togglelabels{top:calc(106px + env(safe-area-inset-top))}
-  #togglezones.on,#toggleparks.on,#togglelabels.on{background:var(--forest);border-color:var(--forest);color:#FFFFFF}
-  #togglezones:active,#toggleparks:active,#togglelabels:active{transform:scale(.97)}
-  a.fchip{text-decoration:none}
+  .loading{position:absolute;top:calc(12px + env(safe-area-inset-top));left:64px;z-index:1000;
+    background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+    border-radius:99px;padding:8px 14px;font-size:13px;font-weight:500;color:var(--label);box-shadow:0 2px 10px rgba(0,0,0,.14)}
+  #togglezones,#toggleparks,#togglelabels{position:absolute;right:12px;z-index:1000;
+    background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+    border-radius:99px;padding:9px 15px;font-size:13px;white-space:nowrap;font-weight:600;color:var(--label);
+    cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.16);transition:background .12s,transform .1s}
+  #togglezones{top:calc(12px + env(safe-area-inset-top))}
+  #toggleparks{top:calc(58px + env(safe-area-inset-top))}
+  #togglelabels{top:calc(104px + env(safe-area-inset-top))}
+  #togglezones.on,#toggleparks.on,#togglelabels.on{background:var(--tint);color:var(--on-tint)}
+  #togglezones:active,#toggleparks:active,#togglelabels:active{transform:scale(.96)}
   .leaflet-popup-content-wrapper{border-radius:12px;font-family:inherit}
+  .leaflet-popup-content{font-size:14px;font-weight:600;color:var(--label)}
+  .leaflet-container{font-family:inherit}
   .parklabel{background:none;border:none;box-shadow:none;padding:0;margin-top:-4px;
-    font-weight:800;font-size:11px;color:var(--ink);white-space:nowrap;
+    font-weight:700;font-size:11px;color:var(--label);white-space:nowrap;
     text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;display:none}
   .parklabel::before{display:none}
   #map.zoomclose .parklabel{display:block}
-  /* embed mode: map only, driven from Site Journal's pull-down */
   body.embed #panel{display:none}
   body.embed #mapwrap{position:fixed;inset:0;width:100%;height:100dvh}
-  /* hand placed map labels */
-  .plabel{font-weight:800;font-size:11px;letter-spacing:.08em;color:var(--moss);opacity:.8;
+  .plabel{font-weight:700;font-size:11px;letter-spacing:.08em;color:var(--label-2);opacity:.85;
     white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;transform:translate(-50%,-50%)}
-  .clabel{white-space:nowrap;color:var(--ink);transform:translate(-4px,-50%);
+  .clabel{white-space:nowrap;color:var(--label);transform:translate(-4px,-50%);
     text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff}
-  .clabel.t1{font-weight:800;font-size:12.5px}
-  .clabel.t2{font-weight:600;font-size:11.5px}
-  .cdot{display:inline-block;width:5px;height:5px;border-radius:99px;background:var(--ink);
-    opacity:.65;margin-right:4px;vertical-align:1px}
-  .alabel{font-style:italic;font-weight:600;font-size:11.5px;color:var(--moss);white-space:nowrap;
+  .clabel.t1{font-weight:700;font-size:12.5px}
+  .clabel.t2{font-weight:500;font-size:11.5px}
+  .cdot{display:inline-block;width:5px;height:5px;border-radius:99px;background:var(--label);
+    opacity:.6;margin-right:4px;vertical-align:1px}
+  .alabel{font-style:italic;font-weight:500;font-size:11.5px;color:var(--label-2);white-space:nowrap;
     text-shadow:0 0 3px #fff,0 0 3px #fff;transform:translate(-50%,-50%)}
   .z-far .clabel.t2{display:none}
   .z-hide .clabel,.z-hide .alabel{display:none}
-  .leaflet-popup-content{font-size:13px;font-weight:700;color:var(--ink)}
   /* multiply lets lakes and rivers read through the zone colours */
   .leaflet-zonefill-pane canvas{mix-blend-mode:multiply}
   /* richer blue water on the base map */
   .leaflet-tile-pane{filter:saturate(1.85) contrast(1.05)}
-  /* smooth crossings: a depth push between pages (to and from Site Journal).
-     The leaving page falls back and fades; the arriving one rises through with a spring. */
-  @view-transition{navigation:auto}
-  @keyframes vtOut{to{opacity:0;transform:scale(1.03)}}
-  @keyframes vtIn{from{opacity:0;transform:scale(.94) translateY(14px)}}
-  ::view-transition-old(root){animation:vtOut .26s cubic-bezier(.4,0,.2,1) both}
-  ::view-transition-new(root){animation:vtIn .40s cubic-bezier(.32,1.14,.38,1) both}
-  @media (prefers-reduced-motion:reduce){ @view-transition{navigation:none} }
-  /* every fresh panel rises in with a small spring */
-  @keyframes blockIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
-  #detail.anim{animation:blockIn .32s cubic-bezier(.32,1.22,.38,1)}
-  .srow:active{transform:scale(.985)}
-  .gresult:active{transform:scale(.985)}
-  /* app feel on iOS: no rubber band fights, no long-press callouts on the map */
-  body{overscroll-behavior-y:none}
-  #map{-webkit-touch-callout:none;-webkit-user-select:none}
-  /* dark theme: dark tiles, zone colours glow instead of multiply, halos flip */
+  /* dark map: dark tiles, zone colours glow instead of multiply, halos flip */
   body.darkmap .leaflet-tile-pane{filter:none}
   body.darkmap .leaflet-zonefill-pane canvas{mix-blend-mode:screen;opacity:.5}
   body.darkmap .plabel,body.darkmap .alabel{color:#B9C6BD;text-shadow:0 0 3px #10171A,0 0 3px #10171A}
   body.darkmap .clabel{color:#E8EFEA;text-shadow:0 0 3px #10171A,0 0 3px #10171A,0 0 3px #10171A}
   body.darkmap .parklabel{color:#E8EFEA;text-shadow:0 0 3px #10171A,0 0 3px #10171A,0 0 3px #10171A}
-  .leaflet-container{font-family:inherit}
 
   /* sheet --------------------------------------------------------------- */
-  /* bottom sheet, per the measured Site Journal spec */
-  .backdrop{position:fixed;inset:0;background:rgba(15,31,23,.35);opacity:0;pointer-events:none;
-    transition:opacity .25s;z-index:40}
+  .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;
+    transition:opacity .3s var(--ease);z-index:40}
   .backdrop.on{opacity:1;pointer-events:auto}
   .sheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;transform:translateY(102%);
-    width:min(540px,100%);background:var(--paper);z-index:50;
-    border-radius:16px 16px 0 0;
-    padding:8px 22px calc(26px + env(safe-area-inset-bottom));
-    box-shadow:0 -8px 40px rgba(19,32,25,.22);
-    transition:transform .34s cubic-bezier(.32,1.22,.38,1);
-    max-height:92vh;overflow:auto}
+    width:min(540px,100%);background:var(--bg);z-index:50;border-radius:12px 12px 0 0;
+    padding:8px 20px calc(24px + env(safe-area-inset-bottom));box-shadow:0 -1px 0 var(--separator);
+    transition:transform .34s var(--ease);max-height:92vh;overflow:auto}
   .sheet.on{transform:translateY(0)}
-  .grabber{width:40px;height:4px;border-radius:99px;background:var(--mist-2);margin:7px auto 16px}
-  .verline{font-size:12.5px;color:var(--moss);margin:7px 0;line-height:1.5;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .verline .vv{font-weight:800;color:var(--ink);margin-right:9px;font-variant-numeric:tabular-nums}
-  .vv{flex:none;font-weight:800;font-size:12.5px;color:var(--forest);
-    font-variant-numeric:tabular-nums;min-width:46px}
-  .kind{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--forest)}
-  .sheet a{color:var(--forest);text-underline-offset:2px}
-  .aboutbody p{margin:1em 0}
-  .closing{font-size:12px;font-weight:600;color:var(--moss);text-align:center;margin-top:12px}
+  .grabber{width:36px;height:5px;border-radius:3px;background:var(--label-3);margin:8px auto 16px}
+  .verline{font-size:15px;color:var(--label);margin:0;line-height:1.5;padding:10px 0;
+    border-bottom:.5px solid var(--separator);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .verline:last-child{border-bottom:none}
+  .verline .vv{font-weight:600;color:var(--tint);margin-right:10px;font-variant-numeric:tabular-nums}
+  .vv{flex:none;font-weight:600;font-size:15px;color:var(--tint);font-variant-numeric:tabular-nums;min-width:46px}
+  .kind{font-size:13px;font-weight:400;letter-spacing:.4px;text-transform:uppercase;color:var(--label-2)}
+  .sheet a{color:var(--tint)}
+  .aboutbody p{margin:1em 0;font-size:16px;line-height:1.5;color:var(--label)}
+  .closing{font-size:13px;font-weight:400;color:var(--label-2);text-align:center;margin-top:16px;line-height:1.5}
   /* fish id */
-  .frow{display:block;width:100%;text-align:left;appearance:none;font-family:inherit;cursor:pointer;
-    border:1px solid var(--line);background:var(--card);border-radius:var(--r-sm);
-    padding:12px 14px;margin-bottom:var(--gap-m);font-weight:700;font-size:15px;color:var(--ink);
-    transition:transform .14s}
-  .frow:active{transform:scale(.985)}
-  .fgallery{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
-  .fcard{appearance:none;font-family:inherit;cursor:pointer;text-align:left;
-    border:1px solid var(--line);background:var(--card);border-radius:var(--r-sm);padding:10px;
-    display:flex;flex-direction:column;gap:8px;transition:transform .14s}
+  .frow{display:block;width:100%;text-align:left;appearance:none;cursor:pointer;
+    background:var(--bg-elevated);border-radius:10px;padding:12px 16px;margin-bottom:8px;
+    font-weight:400;font-size:17px;color:var(--label);letter-spacing:-.2px;transition:background .12s,transform .12s}
+  .frow:active{background:var(--fill);transform:scale(.99)}
+  .fgallery{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}
+  .fcard{appearance:none;cursor:pointer;text-align:left;background:var(--bg-elevated);
+    border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column;transition:transform .1s}
   .fcard:active{transform:scale(.97)}
-  .fcard img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:var(--r-xs);background:#FFFFFF}
-  .fcard span{font-weight:700;font-size:13.5px;color:var(--ink);line-height:1.3}
-  .idcard{border:1px solid var(--line);background:var(--card);border-radius:var(--r-sm);
-    overflow:hidden;margin-bottom:var(--gap-m)}
-  .idcard img{width:100%;max-height:230px;object-fit:contain;background:#FFFFFF;display:block}
+  .fcard img{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--bg-secondary)}
+  .fcard span{font-weight:500;font-size:14px;color:var(--label);line-height:1.3;padding:8px 12px 12px}
+  .idcard{background:var(--bg-elevated);border-radius:14px;overflow:hidden;margin-bottom:8px}
+  .idcard img{width:100%;max-height:230px;object-fit:contain;background:var(--bg-secondary);display:block}
   .idcard .idbody{padding:12px 16px 14px}
-  .idname{font-weight:800;font-size:16px;letter-spacing:-.01em}
-  .idtell{margin:0 0 10px;padding-left:18px}
-  .idtell li{font-size:13.5px;color:var(--ink);line-height:1.45;margin:3px 0}
-  .idrow{font-size:13px;color:var(--moss);line-height:1.45;margin-top:4px}
-  .idrow b{color:var(--ink);font-weight:700}
-  .xapp{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);
-    background:var(--card);border-radius:12px;padding:14px 16px;font-weight:700;font-size:14.5px;
-    color:var(--ink);text-decoration:none}
-  .xapp:active{transform:scale(.98)}
-  .xapp .xgo{font-size:12px;font-weight:800;color:var(--forest)}
-  .themerow{display:flex;flex-direction:column;gap:10px}
-  .trow{display:flex;align-items:center;justify-content:space-between;appearance:none;font-family:inherit;
-    cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:12px;
-    padding:14px 16px;font-weight:700;font-size:14.5px;color:var(--ink);transition:transform .14s}
-  .trow:active{transform:scale(.98)}
-  .trow .tk{font-size:12px;font-weight:800;color:var(--forest)}
+  .idname{font-weight:700;font-size:18px;letter-spacing:-.2px}
+  .idtell{margin:6px 0 10px;padding-left:18px}
+  .idtell li{font-size:15px;color:var(--label);line-height:1.45;margin:3px 0}
+  .idrow{font-size:14px;color:var(--label-2);line-height:1.45;margin-top:4px}
+  .idrow b{color:var(--label);font-weight:600}
+  .xapp{display:flex;align-items:center;justify-content:space-between;background:var(--bg-elevated);
+    border-radius:10px;padding:13px 16px;font-weight:400;font-size:17px;color:var(--label);
+    text-decoration:none;letter-spacing:-.2px;margin-bottom:8px;transition:background .12s,transform .1s}
+  .xapp:active{background:var(--fill);transform:scale(.99)}
+  .xapp .xgo{font-size:15px;font-weight:400;color:var(--tint)}
+  /* appearance segmented control */
+  .segmented{display:flex;background:var(--fill-strong);border-radius:9px;padding:2px;gap:2px}
+  .seg-opt{flex:1;text-align:center;padding:9px 8px;border-radius:7px;font-size:14px;font-weight:500;
+    color:var(--label);cursor:pointer;transition:background .15s}
+  .seg-opt.on{background:var(--bg-elevated);box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600}
 
   footer{width:100%;max-width:720px;margin:auto auto 0;flex:0 0 auto;
-    padding:28px 18px calc(20px + env(safe-area-inset-bottom));color:var(--moss);
-    font-size:13.5px;line-height:1.55}
-  footer a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+    padding:28px 16px calc(20px + env(safe-area-inset-bottom));color:var(--label-2);
+    font-size:13px;line-height:1.55}
+  footer a{color:var(--label-2);text-decoration:underline;text-underline-offset:2px}
 
-  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  /* motion ------------------------------------------------------------- */
+  @view-transition{navigation:auto}
+  @keyframes vtOut{to{opacity:0;transform:scale(1.03)}}
+  @keyframes vtIn{from{opacity:0;transform:scale(.94) translateY(14px)}}
+  ::view-transition-old(root){animation:vtOut .26s cubic-bezier(.4,0,.2,1) both}
+  ::view-transition-new(root){animation:vtIn .40s cubic-bezier(.32,1.14,.38,1) both}
+  @keyframes blockIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  #detail.anim{animation:blockIn .28s var(--ease)}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}
+    @view-transition{navigation:none}}
 </style>
 </head>
 <body>
@@ -327,7 +310,7 @@
 <div class="sheet" id="versions" role="dialog" aria-modal="true" aria-label="Versions">
   <div class="grabber"></div>
   <div class="kind" style="margin-bottom:12px">Versions</div>
-  <div class="vlist"><div class="verline"><span class="vv">v0.78</span>One back button, a clear path, no more getting lost</div><div class="verline"><span class="vv">v0.73</span>Site Journal themes here too, dark map included</div><div class="verline"><span class="vv">v0.71</span>Fish ID, every species drawn and explained</div><div class="verline"><span class="vv">v0.70</span>Blue by default, it is water after all</div><div class="verline"><span class="vv">v0.69</span>One app with Site Journal, parks on the map</div><div class="verline"><span class="vv">v0.54</span>Search made fast, results paint in live</div><div class="verline"><span class="vv">v0.45</span>Phone sheet slides over the map</div><div class="verline"><span class="vv">v0.44</span>Search with category pills</div><div class="verline"><span class="vv">v0.41</span>Full lake pages from Fish ON-Line</div><div class="verline"><span class="vv">v0.37</span>Express edition released</div><div class="verline"><span class="vv">v0.30</span>Map redrawn on canvas, much smoother</div><div class="verline"><span class="vv">v0.26</span>Rebuilt on the shared design system</div><div class="verline"><span class="vv">v0.24</span>Every zone swept against the guide</div><div class="verline"><span class="vv">v0.19</span>Open today, species explorer, offline</div><div class="verline"><span class="vv">v0.13</span>Map wired to official zone boundaries</div><div class="verline"><span class="vv">v0.10</span>Seasons and limits out of the 148 page PDF</div></div>
+  <div class="vlist"><div class="verline"><span class="vv">v0.80</span>New look, one iOS style shared with ON Wildlife and ON Camp</div><div class="verline"><span class="vv">v0.78</span>One back button, a clear path, no more getting lost</div><div class="verline"><span class="vv">v0.73</span>Site Journal themes here too, dark map included</div><div class="verline"><span class="vv">v0.71</span>Fish ID, every species drawn and explained</div><div class="verline"><span class="vv">v0.70</span>Blue by default, it is water after all</div><div class="verline"><span class="vv">v0.69</span>One app with Site Journal, parks on the map</div><div class="verline"><span class="vv">v0.54</span>Search made fast, results paint in live</div><div class="verline"><span class="vv">v0.45</span>Phone sheet slides over the map</div><div class="verline"><span class="vv">v0.44</span>Search with category pills</div><div class="verline"><span class="vv">v0.41</span>Full lake pages from Fish ON-Line</div><div class="verline"><span class="vv">v0.37</span>Express edition released</div><div class="verline"><span class="vv">v0.30</span>Map redrawn on canvas, much smoother</div><div class="verline"><span class="vv">v0.26</span>Rebuilt on the shared design system</div><div class="verline"><span class="vv">v0.24</span>Every zone swept against the guide</div><div class="verline"><span class="vv">v0.19</span>Open today, species explorer, offline</div><div class="verline"><span class="vv">v0.13</span>Map wired to official zone boundaries</div><div class="verline"><span class="vv">v0.10</span>Seasons and limits out of the 148 page PDF</div></div>
 </div>
 <div class="sheet" id="about" role="dialog" aria-modal="true" aria-label="About">
   <div class="grabber"></div>
@@ -341,10 +324,12 @@
     <p>It makes the check quick, a glance before you head out instead of twenty minutes of scrolling,
       and you can cast knowing you looked it up.</p>
   </div>
-  <div class="kind" style="margin:24px 0 12px">Ontario Parks</div>
-  <a class="xapp" href="https://katsuma0.github.io/sitejournal-app/">Site Journal<span class="xgo">Open</span></a>
-  <div class="kind" style="margin:24px 0 12px">Themes</div>
-  <div class="themerow" id="themeRow"></div>
+  <div class="kind" style="margin:24px 0 12px">Appearance</div>
+  <div class="segmented" id="themeRow"></div>
+  <div class="kind" style="margin:24px 0 12px">More from the Ontario outdoors</div>
+  <a class="xapp" href="https://katsuma0.github.io/on-wildlife/" target="_blank" rel="noopener">ON Wildlife<span class="xgo">Open</span></a>
+  <a class="xapp" id="campLink" href="https://katsuma0.github.io/on-camp/" target="_blank" rel="noopener">ON Camp<span class="xgo">Open</span></a>
+  <div class="closing" style="margin-top:2px">Three field guides for Ontario, one look. Wildlife to spot, campsites to rate, fishing seasons to check. Take all three.</div>
   <div class="closing">Regulations from the 2026 summary · Zone boundaries from the Government of
     Ontario · Fish plates by Sherman F. Denton (1896) and the U.S. Fish and Wildlife Service
     · Data prepared 2026-07-21</div>
@@ -365,7 +350,7 @@
         <div class="eyebrow">Ministry of Natural Resources</div>
         <div class="titlebar">
           <h1 id="logobtn" tabindex="0" role="button">ON Fishing Regulation</h1>
-          <button class="ver" id="verbtn">v0.78</button>
+          <button class="ver" id="verbtn">v0.80</button>
         </div>
         <p class="sub">Not an official source. Rules change and mistakes happen, so double check
           the <a href="https://www.ontario.ca/document/ontario-fishing-regulations-summary" target="_blank" rel="noopener">official summary</a> before you
@@ -526,8 +511,10 @@ const SJ_THEMES = [ /* all light or medium and bold; the Wildlands alone keeps t
   {id:'woodlandcaribou', name:'Woodland Caribou', paper:'#F5F0EB', ink:'#2B2217', primary:'#8F6229'}
 ];
 const EMBED = /embed=parks/.test(location.hash||'');
-/* the one dark theme darkens the map too */
-const THEME_DARK=(function(){ try{ const v=JSON.parse(localStorage.getItem('site-journal-theme-vars')||'null'); return !!(v&&v.dark); }catch(e){ return false; } })();
+/* dark mode darkens the map too (the system, or the in-app Appearance toggle) */
+function fishPrefersDark(){ return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); }
+function fishAppearance(){ try{ return localStorage.getItem('onfish-appearance')||'auto'; }catch(e){ return 'auto'; } }
+const THEME_DARK=(function(){ var a=fishAppearance(); return a==='dark' || (a==='auto' && fishPrefersDark()); })();
 if(THEME_DARK) document.body.classList.add('darkmap');
 
 /* haptics, same feel as Site Journal: native inside the app, vibration elsewhere */
@@ -918,8 +905,8 @@ setOverlay(overlayOn);
 const PARK_PINS=[{"id":"aaron","name":"Aaron","lat":49.7596,"lng":-92.6535},{"id":"algonquinachray","name":"Achray","lat":45.8664,"lng":-77.7534},{"id":"arrowhead","name":"Arrowhead","lat":45.3917,"lng":-79.1986},{"id":"awenda","name":"Awenda","lat":44.8413,"lng":-79.9925},{"id":"balsamlake","name":"Balsam Lake","lat":44.6278,"lng":-78.865},{"id":"basslake","name":"Bass Lake","lat":44.6044,"lng":-79.4808},{"id":"batchawanabay","name":"Batchawana Bay","lat":46.9333,"lng":-84.6167},{"id":"bluelake","name":"Blue Lake","lat":49.8933,"lng":-93.5413},{"id":"bonecho","name":"Bon Echo","lat":44.9115,"lng":-77.2661},{"id":"bonnechere","name":"Bonnechere","lat":45.6621,"lng":-77.5718},{"id":"boynevalley","name":"Boyne Valley","lat":44.1167,"lng":-80.1333},{"id":"algonquinbrent","name":"Brent","lat":46.1746,"lng":-78.4914},{"id":"brontecreek","name":"Bronte Creek","lat":43.4156,"lng":-79.7678},{"id":"caliperlake","name":"Caliper Lake","lat":49.0635,"lng":-93.9127},{"id":"algonquincanisbay","name":"Canisbay","lat":45.592,"lng":-78.6425},{"id":"charlestonlake","name":"Charleston Lake","lat":44.5197,"lng":-76.0383},{"id":"chutes","name":"Chutes","lat":46.221,"lng":-82.0723},{"id":"craigleith","name":"Craigleith","lat":44.5333,"lng":-80.35},{"id":"darlington","name":"Darlington","lat":43.8725,"lng":-78.7839},{"id":"devilsglen","name":"Devil's Glen","lat":44.3833,"lng":-80.2},{"id":"driftwood","name":"Driftwood","lat":46.1877,"lng":-77.8534},{"id":"earlrowe","name":"Earl Rowe","lat":44.1579,"lng":-79.905},{"id":"emily","name":"Emily","lat":44.3374,"lng":-78.535},{"id":"eskerlakes","name":"Esker Lakes","lat":48.3203,"lng":-79.8775},{"id":"fairbank","name":"Fairbank","lat":46.4719,"lng":-81.4411},{"id":"ferris","name":"Ferris","lat":44.2919,"lng":-77.7939},{"id":"finlaysonpoint","name":"Finlayson Point","lat":47.0552,"lng":-79.8046},{"id":"fitzroy","name":"Fitzroy","lat":45.4826,"lng":-76.2179},{"id":"forksofthecredit","name":"Forks of the Credit","lat":43.8236,"lng":-80.0114},{"id":"frenchriver","name":"French River","lat":46.032,"lng":-80.3252},{"id":"frontenac","name":"Frontenac","lat":44.5422,"lng":-76.5106},{"id":"fushimilake","name":"Fushimi Lake","lat":49.82,"lng":-83.9172},{"id":"grundy","name":"Grundy Lake","lat":45.9488,"lng":-80.5375},{"id":"halfwaylake","name":"Halfway Lake","lat":46.9108,"lng":-81.6531},{"id":"inverhuron","name":"Inverhuron","lat":44.3002,"lng":-81.5903},{"id":"ivanhoelake","name":"Ivanhoe Lake","lat":48.1491,"lng":-82.5118},{"id":"johnepearce","name":"John E. Pearce","lat":42.5814,"lng":-81.4644},{"id":"kakabekafalls","name":"Kakabeka Falls","lat":48.3987,"lng":-89.6266},{"id":"kawarthahighlands","name":"Kawartha Highlands","lat":44.7292,"lng":-78.2069},{"id":"algonquinkearney","name":"Kearney Lake","lat":45.5397,"lng":-78.3948},{"id":"kettlelakes","name":"Kettle Lakes","lat":48.5692,"lng":-80.8694},{"id":"killarney","name":"Killarney","lat":46.1006,"lng":-81.3811},{"id":"killbear","name":"Killbear","lat":45.3548,"lng":-80.1983},{"id":"algonquinkiosk","name":"Kiosk","lat":46.0977,"lng":-78.8815},{"id":"komoka","name":"Komoka","lat":42.9499,"lng":-81.3974},{"id":"lakestpeter","name":"Lake St. Peter","lat":45.3343,"lng":-78.0233},{"id":"lakesuperior","name":"Lake Superior","lat":47.5968,"lng":-84.7416},{"id":"algonquintworivers","name":"Lake of Two Rivers","lat":45.5787,"lng":-78.4933},{"id":"longpoint","name":"Long Point","lat":42.5797,"lng":-80.3838},{"id":"macgregorpoint","name":"MacGregor Point","lat":44.4096,"lng":-81.4691},{"id":"macleod","name":"MacLeod","lat":49.6893,"lng":-86.8985},{"id":"makobegrays","name":"Makobe-Grays River","lat":47.3872,"lng":-80.2882},{"id":"mara","name":"Mara","lat":44.5875,"lng":-79.3592},{"id":"markburnham","name":"Mark S. Burnham","lat":44.2999,"lng":-78.2692},{"id":"martenriver","name":"Marten River","lat":46.7232,"lng":-79.8148},{"id":"mcraepoint","name":"McRae Point","lat":44.5713,"lng":-79.328},{"id":"algonquinmew","name":"Mew Lake","lat":45.5747,"lng":-78.5237},{"id":"mikisew","name":"Mikisew","lat":45.8219,"lng":-79.5114},{"id":"miserybay","name":"Misery Bay","lat":45.791,"lng":-82.745},{"id":"missinaibi","name":"Missinaibi","lat":48.3145,"lng":-83.7291},{"id":"mississagi","name":"Mississagi","lat":46.5883,"lng":-82.6883},{"id":"monocliffs","name":"Mono Cliffs","lat":44.0453,"lng":-80.0764},{"id":"murphyspoint","name":"Murphys Point","lat":44.7828,"lng":-76.2197},{"id":"nagagamisis","name":"Nagagamisis","lat":49.4634,"lng":-84.7465},{"id":"neys","name":"Neys","lat":48.755,"lng":-86.5761},{"id":"northbeach","name":"North Beach","lat":43.9469,"lng":-77.5364},{"id":"oastlerlake","name":"Oastler Lake","lat":45.3124,"lng":-79.9639},{"id":"obabikariver","name":"Obabika River","lat":47.048,"lng":-80.1783},{"id":"ojibway","name":"Ojibway","lat":49.9882,"lng":-92.1457},{"id":"ouimetcanyon","name":"Ouimet Canyon","lat":48.7881,"lng":-88.67},{"id":"oxtongueriver","name":"Oxtongue River, Ragged Falls","lat":45.3799,"lng":-78.9078},{"id":"pakwash","name":"Pakwash","lat":50.785,"lng":-93.4414},{"id":"pancakebay","name":"Pancake Bay","lat":46.9697,"lng":-84.6918},{"id":"petroglyphs","name":"Petroglyphs","lat":44.6206,"lng":-78.0461},{"id":"pigeonriver","name":"Pigeon River","lat":48.0333,"lng":-89.6167},{"id":"pinery","name":"Pinery","lat":43.2815,"lng":-81.7978},{"id":"algonquinpog","name":"Pog Lake","lat":45.546,"lng":-78.3934},{"id":"pointfarms","name":"Point Farms","lat":43.8049,"lng":-81.7173},{"id":"portbruce","name":"Port Bruce","lat":42.66,"lng":-81.008},{"id":"portburwell","name":"Port Burwell","lat":42.648,"lng":-80.8162},{"id":"potholes","name":"Potholes","lat":47.9167,"lng":-84.5833},{"id":"presquile","name":"Presqu'ile","lat":43.9939,"lng":-77.7131},{"id":"quetico","name":"Quetico","lat":48.3774,"lng":-91.5167},{"id":"algonquinraccoon","name":"Raccoon Lake","lat":45.5307,"lng":-78.3841},{"id":"rainbowfalls","name":"Rainbow Falls","lat":48.8475,"lng":-87.3922},{"id":"renebrunelle","name":"Rene Brunelle","lat":49.4481,"lng":-82.1475},{"id":"restoule","name":"Restoule","lat":46.0672,"lng":-79.7732},{"id":"rideauriver","name":"Rideau River","lat":45.0592,"lng":-75.6711},{"id":"algonquinrock","name":"Rock Lake","lat":45.5288,"lng":-78.3822},{"id":"rockpoint","name":"Rock Point","lat":42.8494,"lng":-79.5542},{"id":"rondeau","name":"Rondeau","lat":42.287,"lng":-81.852},{"id":"rushingriver","name":"Rushing River","lat":49.6869,"lng":-94.2289},{"id":"samueldechamplain","name":"Samuel de Champlain","lat":46.2922,"lng":-78.8675},{"id":"sandbanks","name":"Sandbanks","lat":43.9186,"lng":-77.2936},{"id":"sandbarlake","name":"Sandbar Lake","lat":49.4668,"lng":-91.5587},{"id":"saublefalls","name":"Sauble Falls","lat":44.6756,"lng":-81.2568},{"id":"selkirk","name":"Selkirk","lat":42.8139,"lng":-79.9589},{"id":"sharbotlake","name":"Sharbot Lake","lat":44.7714,"lng":-76.7253},{"id":"shorthills","name":"Short Hills","lat":43.1,"lng":-79.2833},{"id":"sibbaldpoint","name":"Sibbald Point","lat":44.3278,"lng":-79.3211},{"id":"silentlake","name":"Silent Lake","lat":44.9096,"lng":-78.051},{"id":"silverfalls","name":"Silver Falls","lat":48.6839,"lng":-89.606},{"id":"silverlake","name":"Silver Lake","lat":44.8309,"lng":-76.5773},{"id":"siouxnarrows","name":"Sioux Narrows","lat":49.424,"lng":-94.0499},{"id":"sixmilelake","name":"Six Mile Lake","lat":44.8914,"lng":-79.7533},{"id":"sleepinggiant","name":"Sleeping Giant","lat":48.4333,"lng":-88.7653},{"id":"solace","name":"Solace","lat":47.15,"lng":-80.4667},{"id":"spanishriver","name":"Spanish River","lat":46.7,"lng":-81.95},{"id":"springwater","name":"Springwater","lat":44.4396,"lng":-79.7615},{"id":"sturgeonbay","name":"Sturgeon Bay","lat":45.6236,"lng":-80.4154},{"id":"sturgeonriver","name":"Sturgeon River","lat":46.9833,"lng":-80.7333},{"id":"algonquintea","name":"Tea Lake","lat":45.5586,"lng":-78.7803},{"id":"themassasauga","name":"The Massasauga","lat":45.1969,"lng":-80.0498},{"id":"tidewater","name":"Tidewater","lat":51.2333,"lng":-80.6167},{"id":"turkeypoint","name":"Turkey Point","lat":42.7053,"lng":-80.3325},{"id":"voyageur","name":"Voyageur","lat":45.5508,"lng":-74.434},{"id":"wabakimi","name":"Wabakimi","lat":50.6217,"lng":-89.619},{"id":"wakamilake","name":"Wakami Lake","lat":47.489,"lng":-82.8326},{"id":"wasagabeach","name":"Wasaga Beach","lat":44.5167,"lng":-80.0167},{"id":"wheatley","name":"Wheatley","lat":42.09,"lng":-82.4472},{"id":"whitelake","name":"White Lake","lat":48.699,"lng":-85.673},{"id":"windylake","name":"Windy Lake","lat":46.6191,"lng":-81.4479},{"id":"woodlandcaribou","name":"Woodland Caribou","lat":50.9986,"lng":-94.7503}];
 /* bundled inside the Site Journal iOS app this page lives at fishing/, so home is one level up */
 const IN_APP=!!window.Capacitor||location.protocol==='capacitor:';
-const SJ_URL=IN_APP?'../index.html':'https://katsuma0.github.io/sitejournal-app/';
-if(IN_APP){ const xa=document.querySelector('#about .xapp'); if(xa) xa.href='../index.html'; }
+const SJ_URL=IN_APP?'../index.html':'https://katsuma0.github.io/on-camp/';
+if(IN_APP){ const xa=document.getElementById('campLink'); if(xa) xa.href='../index.html'; }
 const SJ_PARK_IDS={}; PARK_PINS.forEach(p=>{ SJ_PARK_IDS[parkBase(p.name)]=p.id; });
 map.createPane('parks');
 map.getPane('parks').style.zIndex=455;
@@ -942,7 +929,7 @@ function openParkPin(p){
   const el=document.createElement('div');
   const nm=document.createElement('div'); nm.textContent=p.name;
   nm.style.cssText='font-weight:800;font-size:13.5px;margin-bottom:4px;color:var(--ink)';
-  const a=document.createElement('a'); a.textContent='Open in Site Journal';
+  const a=document.createElement('a'); a.textContent='Open in ON Camp';
   a.href=SJ_URL+'#park='+p.id;
   a.style.cssText='color:var(--forest);font-weight:700;font-size:12.5px;text-decoration:underline;text-underline-offset:2px';
   if(EMBED&&window.parent!==window){
@@ -1406,7 +1393,7 @@ function placeBody(w){
   let html='';
   if(w.z||sjId) html+=`<div class="filters" style="margin-top:14px">`
     +(w.z?`<button class="fchip on" id="wzone">Zone ${w.z} rules</button>`:'')
-    +(sjId?`<a class="fchip on" href="${SJ_URL}#park=${sjId}">Open in Site Journal</a>`:'')
+    +(sjId?`<a class="fchip on" href="${SJ_URL}#park=${sjId}">Open in ON Camp</a>`:'')
     +`</div>`;
   html+=`<p class="meta" style="margin-top:14px">Place data from the Canadian Geographical Names Database.</p>`;
   return html;
@@ -1553,29 +1540,21 @@ function buildVars(t){ var P=t.paper,I=t.ink,F=t.primary,dark=!!t.dark;
   if(dark){ v['--shadow-sm']='0 1px 2px rgba(0,0,0,.40)'; v['--shadow']='0 4px 16px rgba(0,0,0,.45)'; v['--shadow-btn']='0 3px 12px rgba(0,0,0,.5)'; }
   else { v['--shadow-sm']='0 1px 2px rgba(15,31,23,.06)'; v['--shadow']='0 2px 12px rgba(15,31,23,.08)'; v['--shadow-btn']='0 3px 10px rgba(0,0,0,.22)'; }
   return v; }
-function sjThemeState(){
-  try{ return {cur:localStorage.getItem('site-journal-theme')||'forest',
-    unlocks:JSON.parse(localStorage.getItem('site-journal-unlocks')||'[]')}; }
-  catch(e){ return {cur:'forest',unlocks:[]}; } }
 function renderThemeRow(){
   const el=document.getElementById('themeRow'); if(!el) return;
-  const st=sjThemeState();
-  const list=[{id:'forest',name:'Default'}].concat(SJ_THEMES.filter(t=>st.unlocks.indexOf(t.id)>=0));
-  el.innerHTML=list.map(t=>`<button class="trow" data-id="${t.id}">${esc(t.name)}${t.id===st.cur?'<span class="tk">On</span>':''}</button>`).join('')
-    +(list.length===1?'<div class="closing" style="margin-top:4px">Tap a park name in Site Journal to unlock its theme, and it works here too.</div>':'');
-  el.querySelectorAll('.trow').forEach(b=>{ b.onclick=()=>applySJTheme(b.dataset.id); });
+  const cur=fishAppearance();
+  const opts=[['auto','Auto'],['light','Light'],['dark','Dark']];
+  el.innerHTML=opts.map(o=>`<div class="seg-opt${o[0]===cur?' on':''}" data-app="${o[0]}" role="button" tabindex="0">${o[1]}</div>`).join('');
+  el.querySelectorAll('.seg-opt').forEach(b=>{ b.onclick=()=>setAppearance(b.dataset.app); });
 }
-function applySJTheme(id){
+function setAppearance(mode){
   try{
-    if(id==='forest'){ localStorage.setItem('site-journal-theme','forest'); localStorage.removeItem('site-journal-theme-vars'); }
-    else{
-      const t=SJ_THEMES.find(x=>x.id===id); if(!t) return;
-      const v=buildVars(t), tc=t.dark?t.paper:mixhex(t.primary,'#000000',.35);
-      localStorage.setItem('site-journal-theme',id);
-      localStorage.setItem('site-journal-theme-vars',JSON.stringify({vars:v,tc:tc,dark:!!t.dark}));
-    }
+    if(mode==='auto'){ localStorage.removeItem('onfish-appearance'); document.documentElement.removeAttribute('data-theme'); }
+    else{ localStorage.setItem('onfish-appearance',mode); document.documentElement.setAttribute('data-theme',mode); }
   }catch(e){}
-  location.reload();  /* tiles and blending follow the theme, a clean reload keeps it honest */
+  const nowDark = mode==='dark' || (mode==='auto' && fishPrefersDark());
+  if(nowDark!==THEME_DARK){ location.reload(); return; }  /* the map tiles must swap */
+  renderThemeRow();
 }
 document.getElementById('verbtn').onclick=()=>openModal(versionsEl);
 const logo=document.getElementById('logobtn');
@@ -1595,16 +1574,12 @@ function fromHash(){ const m=(location.hash||'').match(/zone=(\d+)/); if(m) sele
 window.addEventListener('hashchange',fromHash);
 fromHash();
 
-/* ---------------- shared themes: follow Site Journal live ---------------- */
-window.addEventListener('storage',e=>{
-  if(e.key!=='site-journal-theme-vars') return;
-  try{
-    var v=JSON.parse(e.newValue||'null'), d=document.documentElement;
-    if((!!(v&&v.dark))!==THEME_DARK){ location.reload(); return; }  /* map tiles must swap */
-    if(v&&v.vars){ for(var k in v.vars) d.style.setProperty(k,v.vars[k]); }
-    else location.reload();   /* theme cleared back to default */
-  }catch(_){}
-});
+/* ---------------- follow the system appearance when set to Auto ---------------- */
+if(window.matchMedia){
+  try{ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{
+    if(fishAppearance()==='auto') location.reload();   /* map tiles must swap */
+  }); }catch(_){}
+}
 
 /* ---------------- offline ---------------- */
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
