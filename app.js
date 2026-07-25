@@ -711,7 +711,7 @@ function paintTiles(){
 function titleOf(v){ return v.type==='zone'?('Zone '+v.z) : v.type==='fish'?v.name : v.w.n; }
 function subOf(v){
   if(v.type==='zone') return (zoneMeta[v.z]&&zoneMeta[v.z].name)?esc(zoneMeta[v.z].name):'Seasons and limits';
-  if(v.type==='fish'){ const m=speciesMap[v.name]||{}; let n=0,open=0; for(let z=1;z<=20;z++) if(m[z]){ n++; if(seasonStatus(m[z].season).status==='open') open++; }
+  if(v.type==='fish'){ const m=fishRegInfo(v.name).merged; let n=0,open=0; for(let z=1;z<=20;z++) if(m[z]){ n++; if(seasonStatus(m[z].rec.season).status==='open') open++; }
     return open+' of '+n+' zones open now'; }
   if(v.type==='place'){ const kind=/park/i.test(v.w.ptype||'')?v.w.ptype:'Town';
     return [v.w.z?('Zone '+v.w.z):'Zone unknown', v.w.loc||'', kind].filter(Boolean).map(esc).join(' · '); }
@@ -904,13 +904,19 @@ function buildLocal(q){
         sub:(REG[num].species_regulations||[]).length+' species · Seasons and limits'}); });
   if(tokens.length){
     const joined=tokens.join(' ');
-    Object.keys(speciesMap).filter(n=>{
-      const nl=n.toLowerCase();
+    // Search the individual game fish so "sauger" or "smallmouth bass" each get
+    // their own result, then resolve to the (sometimes combined) regulation.
+    const seen={};
+    FISH_ID.filter(f=>{
+      const nl=f.name.toLowerCase();
       if(nl===joined) return true;
-      const words=nl.split(/[^a-z]+/).filter(x=>x&&x!=='and'&&x!=='combined');
-      return tokens.some(t=>words.includes(t));   // a fish only answers to a fully typed word
-    }).sort(rankName).slice(0,4)
-      .forEach(n=>out.push({fish:true, n:n, sub:'In '+Object.keys(speciesMap[n]).length+' zones'}));
+      const words=nl.split(/[^a-z]+/).filter(Boolean);
+      return tokens.some(t=>words.includes(t) || f.match.some(m=>m===t));   // a fish only answers to a fully typed word
+    }).slice(0,5).forEach(f=>{
+      if(seen[f.name]) return; seen[f.name]=1;
+      const zc=Object.keys(fishRegInfo(f.name).merged).length;
+      out.push({fish:true, n:f.name, sub:'In '+zc+' '+(zc===1?'zone':'zones')});
+    });
   }
   WATER.forEach(w=>{ if(matchName(w[0],tokens)){ const z=zoneAt(w[2],w[1]);
     if(/\bpark$/i.test(w[0]))
@@ -1099,10 +1105,28 @@ function allRegSpecies(){
   Object.values(REG).forEach(z=>(z.species_regulations||[]).forEach(r=>names.add(r.species)));
   return [...names];
 }
-function openFishCard(f){
-  const cands=allRegSpecies().filter(n=>{ const nl=n.toLowerCase(); return f.match.some(m=>nl.includes(m)); })
-    .sort((a,b)=>a.length-b.length);
-  openFishView(cands.length?cands[0]:f.name);
+function openFishCard(f){ openFishView(f.name); }
+// Resolve an individual fish (or a regulation name) to every regulation entry it
+// is listed under, and the union of zones. Ontario regulates some species as a
+// group (largemouth + smallmouth bass share one season and a pooled limit), and
+// a species can be combined in most zones but split in one (e.g. Zone 20), so a
+// fish's zones come from every matching entry.
+function fishRegInfo(name){
+  const nl=name.toLowerCase();
+  const f=FISH_ID.find(x=>x.name.toLowerCase()===nl) || FISH_ID.find(x=>x.match.some(m=>nl.includes(m)));
+  const matchers = f ? f.match.slice() : [nl];
+  // exact regulation name passed straight through (e.g. from an older link)
+  if(speciesMap[name] && !f) matchers.length && (matchers[0]=nl);
+  const merged={}, regNames=new Set();
+  allRegSpecies().forEach(n=>{ const s=n.toLowerCase();
+    if(/^aggregate limits/i.test(n)) return;
+    if(speciesMap[name]===undefined ? matchers.some(m=>s.includes(m)) : (n===name || matchers.some(m=>s.includes(m)))){
+      const zm=speciesMap[n]||{}; let touched=false;
+      Object.keys(zm).forEach(z=>{ if(!merged[z]){ merged[z]={rec:zm[z], reg:n}; touched=true; } });
+      if(touched || n===name) regNames.add(n);
+    }
+  });
+  return { merged, regNames:[...regNames], fish:f };
 }
 (function(){
   const l=document.getElementById('fishlist');
@@ -1120,10 +1144,9 @@ function openFishView(name){ replaceRoot({type:'fish',name}); }
 /* fish page body: the picture and identification, then where it is open by zone.
    The name lives once in the nav title, never repeated in the card. */
 function fishBody(name){
-  const nl=name.toLowerCase();
-  const f=FISH_ID.find(x=>x.match.some(m=>nl.includes(m)));
-  const m=speciesMap[name]||{}, present=[];
-  for(let z=1;z<=20;z++){ if(m[z]) present.push({z,rec:m[z],st:seasonStatus(m[z].season).status}); }
+  const info=fishRegInfo(name);
+  const f=info.fish, merged=info.merged, present=[];
+  for(let z=1;z<=20;z++){ if(merged[z]) present.push({z,rec:merged[z].rec,st:seasonStatus(merged[z].rec.season).status}); }
   let html='';
   if(f){
     html+=`<div class="idcard" style="margin-top:14px">
@@ -1134,6 +1157,13 @@ function fishBody(name){
         <div class="idrow"><b>Eats:</b> ${esc(f.eat)}</div>
         <div class="idrow"><b>Bites on:</b> ${esc(f.bite)}</div>
       </div></div>`;
+  }
+  // If the season/limit is shared with another species, say so plainly: the
+  // catch limit for a combined group is one shared total, not per species.
+  const combinedReg=info.regNames.find(n=>/ combined$| and /i.test(n));
+  if(combinedReg){
+    const grp=combinedReg.replace(/\s+combined$/i,'');
+    html+=`<div class="combinednote">In most zones Ontario manages ${esc(grp)} together: they share one season, and the catch limit is a shared total, not a separate limit for each.</div>`;
   }
   html+=`<div class="seclabel grey">Seasons by zone</div>`
     + (present.length?present.map(r=>`<button class="srow" data-z="${r.z}" data-st="${r.st}"><div class="col">
