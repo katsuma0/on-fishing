@@ -1,6 +1,6 @@
 {
-  "name": "ON Fishing Regulation",
-  "short_name": "ON Fishing",
+  "name": "on-fishing",
+  "short_name": "on-fishing",
   "description": "Ontario's 20 fishing zones with seasons, limits and what is open right now.",
   "start_url": "./",
   "scope": "./",

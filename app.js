@@ -1139,8 +1139,15 @@ function fishBody(name){
 const backdrop=document.getElementById('backdrop');
 const aboutEl=document.getElementById('about'), versionsEl=document.getElementById('versions');
 function closeModals(){ aboutEl.classList.remove('on'); versionsEl.classList.remove('on'); backdrop.classList.remove('on'); }
+function fillAboutStats(){
+  var el=document.getElementById('aboutStats'); if(!el) return;
+  var zones=(typeof REG!=='undefined')?Object.keys(REG).length:20;
+  var fish=(typeof FISH_ID!=='undefined')?FISH_ID.length:0;
+  function row(k,v){ return '<div style="display:flex;justify-content:space-between;align-items:baseline;padding:11px 2px;border-top:.5px solid var(--separator)"><span>'+k+'</span><span style="color:var(--label-2);font-variant-numeric:tabular-nums">'+v+'</span></div>'; }
+  el.innerHTML=row('Fishing zones',zones)+row('Game fish',fish);
+}
 function openModal(el){ closeModals(); el.classList.add('on'); backdrop.classList.add('on'); el.scrollTop=0;
-  if(el===aboutEl&&typeof renderThemeRow==='function') renderThemeRow(); }
+  if(el===aboutEl){ if(typeof renderThemeRow==='function') renderThemeRow(); fillAboutStats(); } }
 
 /* ---------------- themes, borrowed whole from Site Journal ----------------
    The palette math below is ported from Site Journal so an unlocked theme
