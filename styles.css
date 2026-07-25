@@ -287,3 +287,50 @@
   #detail.anim{animation:blockIn .28s var(--ease)}
   @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}
     @view-transition{navigation:none}}
+
+  /* ===================== shared footer tab bar ===================== */
+  :root{ --tab-h:50px; }
+  .tabbar{ position:fixed; left:0; right:0; bottom:0; z-index:60; height:calc(var(--tab-h) + var(--sa-bottom));
+    padding-bottom:var(--sa-bottom); display:flex; background:var(--bar);
+    -webkit-backdrop-filter:saturate(180%) blur(20px); backdrop-filter:saturate(180%) blur(20px);
+    border-top:.5px solid var(--bar-border); }
+  .tab{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    color:var(--tab-inactive,#6d6d72); font-size:10px; font-weight:500; letter-spacing:.1px; padding:6px 0 0;
+    background:none; border:0; cursor:pointer; font-family:inherit; transition:color .15s, transform .1s; }
+  .tab svg{ width:26px; height:26px; }
+  .tab.active{ color:var(--tint); }
+  .tab.active span{ font-weight:700; }
+  .tab:active{ transform:scale(.92); }
+  :root{ --tab-inactive:#6d6d72; }
+  @media (prefers-color-scheme:dark){ :root{ --tab-inactive:rgba(235,235,245,.6); } }
+  :root[data-theme='light']{ --tab-inactive:#6d6d72; }
+  :root[data-theme='dark']{ --tab-inactive:rgba(235,235,245,.6); }
+  /* panel becomes full tab content above the bar; map shows on the Map tab */
+  @media (max-width:860px){
+    #panel{ position:fixed; left:0; right:0; top:0; bottom:calc(var(--tab-h) + env(safe-area-inset-bottom));
+      width:100%; max-width:none; min-width:0; height:auto; z-index:20; border-left:none; background:var(--bg);
+      overflow-y:auto; transform:none !important; border-radius:0; box-shadow:none; }
+    #panel.min,#panel.drag{ transform:none !important; border-radius:0; box-shadow:none; }
+    #panel .appbar,#panel.min .appbar{ transform:none !important; }
+    .pullwrap{ display:none !important; }
+    #mapwrap{ position:fixed; left:0; right:0; top:0; bottom:calc(var(--tab-h) + env(safe-area-inset-bottom)); }
+    body.tab-map #panel{ display:none; }
+  }
+  @media (min-width:861px){ .pullwrap{ display:none; } }
+
+  /* laptop / desktop: footer becomes a left sidebar; keep the map and panel split */
+  @media (min-width:900px){
+    :root{ --sidebar-w:248px; }
+    .tabbar{ top:0; bottom:0; left:0; right:auto; width:var(--sidebar-w); height:100dvh; max-width:none;
+      flex-direction:column; justify-content:flex-start; align-items:stretch; gap:3px;
+      padding:calc(20px + env(safe-area-inset-top)) 12px 20px; border-top:0; border-right:.5px solid var(--bar-border); }
+    .tabbar::before{ content:"on-fishing"; display:block; font-size:21px; font-weight:700; letter-spacing:-.4px;
+      color:var(--label); padding:4px 14px 18px; }
+    .tab{ flex:0 0 auto; flex-direction:row; justify-content:flex-start; align-items:center; gap:14px; height:46px;
+      padding:0 14px; border-radius:10px; font-size:16px; letter-spacing:-.2px; }
+    .tab svg{ width:24px; height:24px; }
+    .tab span{ font-weight:500; }
+    .tab.active{ background:var(--tint-soft); }
+    .tab.active span{ font-weight:600; }
+    #app{ padding-left:var(--sidebar-w); }
+  }

@@ -837,7 +837,7 @@ let searchSeq=0;
 let lastWater=null;
 let navStack=[];   /* the detail panel is a stack: one back button pops it, home when empty */
 function homeSections(on){ ['mainhome','fishhome'].forEach(id=>{ const e=document.getElementById(id); if(e) e.hidden=!on; }); }
-function showDetail(){ rbox.hidden=true; detailEl.hidden=false; homeSections(false);
+function showDetail(){ if(typeof exitMapTab==='function') exitMapTab(); rbox.hidden=true; detailEl.hidden=false; homeSections(false);
   /* microtask: runs after the caller has set the new content but before paint,
      so the whole panel rises in exactly once per open */
   Promise.resolve().then(()=>{ detailEl.classList.remove('anim'); void detailEl.offsetWidth; detailEl.classList.add('anim'); }); }
@@ -1148,6 +1148,52 @@ function fillAboutStats(){
 }
 function openModal(el){ closeModals(); el.classList.add('on'); backdrop.classList.add('on'); el.scrollTop=0;
   if(el===aboutEl){ if(typeof renderThemeRow==='function') renderThemeRow(); fillAboutStats(); } }
+
+/* ---- shared footer tab bar ---- */
+var fishLearnRendered=false;
+function exitMapTab(){ document.body.classList.remove('tab-map');
+  var tb=document.getElementById('tabbar'); if(tb) tb.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('active', b.dataset.tab==='guide'); }); }
+function setPanelView(view){
+  var lh=document.getElementById('learnhome'), mh=document.getElementById('mainhome'), fh=document.getElementById('fishhome');
+  if(view==='learn'){
+    if(mh) mh.hidden=true; if(fh) fh.hidden=true; if(detailEl) detailEl.hidden=true;
+    var rb=document.getElementById('gresults'); if(rb) rb.hidden=true;
+    if(lh) lh.hidden=false;
+    if(!fishLearnRendered){ renderFishLearn(); fishLearnRendered=true; }
+  } else {
+    if(lh) lh.hidden=true;
+    if(typeof restoreList==='function') restoreList();
+  }
+}
+function showTab(tab){
+  var tb=document.getElementById('tabbar');
+  if(tab==='more'){ if(typeof openModal==='function') openModal(aboutEl);
+    if(tb) tb.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('active', b.dataset.tab==='more'); });
+    if(typeof buzz==='function') buzz(6); return; }
+  if(typeof closeModals==='function') closeModals();
+  document.body.classList.toggle('tab-map', tab==='map');
+  setPanelView(tab==='learn' ? 'learn' : 'home');
+  if(tab==='search'){ var s=document.getElementById('search'); if(s) try{ s.focus(); }catch(e){} }
+  if(tb) tb.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('active', b.dataset.tab===tab); });
+  if(tab!=='map' && typeof panelEl!=='undefined' && panelEl) panelEl.scrollTop=0;
+  if(typeof buzz==='function') buzz(6);
+}
+(function(){ var tb=document.getElementById('tabbar');
+  if(tb) tb.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('.tab'); if(b) showTab(b.dataset.tab); }); })();
+document.body.classList.add('tab-map');  /* open on the map, fishing's home */
+
+function renderFishLearn(){
+  var el=document.getElementById('fishLearnBody'); if(!el) return;
+  var A=[
+    {t:'Before you fish', b:'You need an Outdoors Card and a valid licence to fish in Ontario, and the rules change by zone and by species. This app is a quick check, not the official word, so confirm the seasons and limits against the official summary before you keep anything.'},
+    {t:'Handling and releasing fish', b:'If you are letting a fish go, give it the best chance. Wet your hands first, keep it in the water as much as you can, and support its belly. Pinch the barb or use barbless hooks, and back the hook out gently. If it is hooked deep, cut the line rather than digging. Do not hold a fish by the gills, and get it back in the water quickly, facing into the current until it swims off on its own.'},
+    {t:'Protect the water', b:'Invasive species like zebra mussels and spiny water flea move from lake to lake on boats and gear. Clean, drain, and dry everything between waters. Never move live fish or bait from one lake to another, and put leftover bait in the trash, not the water.'},
+    {t:'Is it safe to eat?', b:'Ontario publishes eating guidelines because some fish carry mercury or other contaminants, more so in bigger, older fish. Check the province Guide to Eating Ontario Fish for your lake and species, and go easy on large predators like walleye and pike if you eat fish often.'},
+    {t:'Cold water and weather', b:'Cold water is the real danger, even in summer. Wear a lifejacket, tell someone your plan, and watch the sky. If a storm builds, get off the water and away from tall lone trees. A sudden dunk in cold water saps your strength fast.'},
+    {t:'Report a problem', b:'Seeing pollution, a fishing violation, or someone moving live fish between lakes? Report it to the ministry TIPS-MNR line at 1-877-847-7667.'}
+  ];
+  el.innerHTML=A.map(function(a){ return '<details class="blk"><summary>'+a.t+'</summary><div class="body"><p style="margin:2px 0 0;font-size:14px;line-height:1.5;color:var(--label)">'+a.b+'</p></div></details>'; }).join('');
+}
 
 /* ---------------- themes, borrowed whole from Site Journal ----------------
    The palette math below is ported from Site Journal so an unlocked theme

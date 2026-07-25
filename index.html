@@ -18,7 +18,7 @@
 <div class="sheet" id="versions" role="dialog" aria-modal="true" aria-label="Versions">
   <div class="grabber"></div>
   <div class="kind" style="margin-bottom:12px">Versions</div>
-  <div class="vlist"><div class="verline"><span class="vv">v0.81</span>New title, one summary, about and stats</div><div class="verline"><span class="vv">v0.80</span>New look, one iOS style shared with ON Wildlife and ON Camp</div><div class="verline"><span class="vv">v0.78</span>One back button, a clear path, no more getting lost</div><div class="verline"><span class="vv">v0.73</span>Site Journal themes here too, dark map included</div><div class="verline"><span class="vv">v0.71</span>Fish ID, every species drawn and explained</div><div class="verline"><span class="vv">v0.70</span>Blue by default, it is water after all</div><div class="verline"><span class="vv">v0.69</span>One app with Site Journal, parks on the map</div><div class="verline"><span class="vv">v0.54</span>Search made fast, results paint in live</div><div class="verline"><span class="vv">v0.45</span>Phone sheet slides over the map</div><div class="verline"><span class="vv">v0.44</span>Search with category pills</div><div class="verline"><span class="vv">v0.41</span>Full lake pages from Fish ON-Line</div><div class="verline"><span class="vv">v0.37</span>Express edition released</div><div class="verline"><span class="vv">v0.30</span>Map redrawn on canvas, much smoother</div><div class="verline"><span class="vv">v0.26</span>Rebuilt on the shared design system</div><div class="verline"><span class="vv">v0.24</span>Every zone swept against the guide</div><div class="verline"><span class="vv">v0.19</span>Open today, species explorer, offline</div><div class="verline"><span class="vv">v0.13</span>Map wired to official zone boundaries</div><div class="verline"><span class="vv">v0.10</span>Seasons and limits out of the 148 page PDF</div></div>
+  <div class="vlist"><div class="verline"><span class="vv">v0.82</span>Footer tabs: map, zones, search, learn and more, matched to the other apps</div><div class="verline"><span class="vv">v0.81</span>New title, one summary, about and stats</div><div class="verline"><span class="vv">v0.80</span>New look, one iOS style shared with ON Wildlife and ON Camp</div><div class="verline"><span class="vv">v0.78</span>One back button, a clear path, no more getting lost</div><div class="verline"><span class="vv">v0.73</span>Site Journal themes here too, dark map included</div><div class="verline"><span class="vv">v0.71</span>Fish ID, every species drawn and explained</div><div class="verline"><span class="vv">v0.70</span>Blue by default, it is water after all</div><div class="verline"><span class="vv">v0.69</span>One app with Site Journal, parks on the map</div><div class="verline"><span class="vv">v0.54</span>Search made fast, results paint in live</div><div class="verline"><span class="vv">v0.45</span>Phone sheet slides over the map</div><div class="verline"><span class="vv">v0.44</span>Search with category pills</div><div class="verline"><span class="vv">v0.41</span>Full lake pages from Fish ON-Line</div><div class="verline"><span class="vv">v0.37</span>Express edition released</div><div class="verline"><span class="vv">v0.30</span>Map redrawn on canvas, much smoother</div><div class="verline"><span class="vv">v0.26</span>Rebuilt on the shared design system</div><div class="verline"><span class="vv">v0.24</span>Every zone swept against the guide</div><div class="verline"><span class="vv">v0.19</span>Open today, species explorer, offline</div><div class="verline"><span class="vv">v0.13</span>Map wired to official zone boundaries</div><div class="verline"><span class="vv">v0.10</span>Seasons and limits out of the 148 page PDF</div></div>
 </div>
 <div class="sheet" id="about" role="dialog" aria-modal="true" aria-label="About">
   <div class="grabber"></div>
@@ -57,7 +57,7 @@
       <header class="appbar">
         <div class="titlebar">
           <h1 id="logobtn" tabindex="0" role="button">on-fishing</h1>
-          <button class="ver" id="verbtn">v0.81</button>
+          <button class="ver" id="verbtn">v0.82</button>
         </div>
         <p class="sub">Ontario's 20 fishing zones, with seasons, limits, and what is open right now.
           Not an official source, so check the <a href="https://www.ontario.ca/document/ontario-fishing-regulations-summary" target="_blank" rel="noopener">official summary</a> before you fish.</p>
@@ -79,6 +79,10 @@
         <details class="blk"><summary>Gallery</summary>
           <div class="body"><div class="fgallery" id="fgallery"></div></div></details>
       </div>
+      <div id="learnhome" hidden>
+        <div class="seclabel">Learn and safety</div>
+        <div id="fishLearnBody"></div>
+      </div>
     </div>
     <footer>
       Not an official source. Always check the official summary before you fish.<br>
@@ -86,6 +90,14 @@
     </footer>
   </div>
 </div>
+
+<nav class="tabbar" id="tabbar">
+  <button class="tab" data-tab="guide" type="button" aria-label="Guide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg><span>Guide</span></button>
+  <button class="tab" data-tab="search" type="button" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Search</span></button>
+  <button class="tab active" data-tab="map" type="button" aria-label="Map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="m9 4-6 2v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span>Map</span></button>
+  <button class="tab" data-tab="learn" type="button" aria-label="Learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H18a2 2 0 0 1 2 2v13H6a2 2 0 0 0-2 2z"/><path d="M20 19a2 2 0 0 0-2 2H6"/></svg><span>Learn</span></button>
+  <button class="tab" data-tab="more" type="button" aria-label="More"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>More</span></button>
+</nav>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="data/regulations.js"></script>
