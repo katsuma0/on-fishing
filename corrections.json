@@ -1,5 +1,4 @@
 {
-  "_note": "Hand-verified fixes for entries the PDF's dense multi-column layout scrambles beyond automatic reassembly. Keyed by zone then species; applied by 02_clean_for_map.py after cleaning. A species not already present is added. Transcribed from the official 2026 summary.",
   "2": {
     "Largemouth and Smallmouth Bass combined": {
       "season": "open all year",
@@ -22,6 +21,9 @@
     "Aggregate Limits for Trout and Salmon": {
       "season": "Not specified",
       "limits": "S-5 and C-2; total daily catch and possession limit for all trout and salmon species combined"
+    },
+    "Yellow Perch": {
+      "limits": "S-50 and C-25"
     }
   },
   "5": {
@@ -44,143 +46,6 @@
     "Walleye and Sauger combined": {
       "season": "January 1 to April 14 and third Saturday in May to December 31",
       "limits": "Residents: S-4 and C-2, not more than 1 greater than 46 cm. Non-Canadian residents: daily catch and retain limit S-2 and C-2, not more than 1 greater than 46 cm; possession limit S-4 and C-2, not more than 1 greater than 46 cm"
-    }
-  },
-  "7": {
-    "Aggregate Limits for Trout and Salmon": {
-      "season": "Not specified",
-      "limits": "S-5 and C-2; total daily catch and possession limit for all trout and salmon species combined"
-    },
-    "Lake Whitefish": {
-      "season": "open all year",
-      "limits": "S-25 and C-12"
-    },
-    "Muskellunge": {
-      "season": "closed all year",
-      "limits": "Not specified"
-    },
-    "Northern Pike": {
-      "season": "open all year",
-      "limits": "S-6; not more than 2 greater than 61 cm, of which not more than 1 greater than 86 cm, and C-2; not more than 1 greater than 61 cm, none greater than 86 cm"
-    }
-  },
-  "10": {
-    "Aggregate Limits for Trout and Salmon": {
-      "season": "Not specified",
-      "limits": "S-5 and C-2; total daily catch and possession limit for all trout and salmon species combined"
-    },
-    "Yellow Perch": {
-      "season": "open all year",
-      "limits": "S-50 and C-25"
-    }
-  },
-  "15": {
-    "Aggregate Limits for Trout and Salmon": {
-      "season": "Not specified",
-      "limits": "S-5 and C-2; total daily catch and possession limit for all trout and salmon species combined"
-    },
-    "Lake Whitefish": {
-      "season": "open all year",
-      "limits": "S-12 and C-6"
-    }
-  },
-  "12": {
-    "Lake Whitefish": {
-      "season": "open all year",
-      "limits": "S-12 and C-6"
-    },
-    "Lake Trout and Splake": {
-      "season": "Friday before fourth Saturday in April to September 30",
-      "limits": "S-2 and C-1; must be greater than 45 cm"
-    },
-    "Walleye and Sauger combined": {
-      "season": "January 1 to March 31 and Friday before third Saturday in May to December 31",
-      "limits": "S-5 and C-2; must be less than 40 cm"
-    }
-  },
-  "16": {
-    "Lake Trout": {
-      "season": "January 1 to September 30",
-      "limits": "S-2 and C-1"
-    },
-    "Lake Whitefish": {
-      "season": "open all year",
-      "limits": "S-12 and C-6"
-    },
-    "Yellow Perch": {
-      "season": "open all year",
-      "limits": "S-50 and C-25"
-    }
-  },
-  "20": {
-    "_full": true,
-    "Aggregate Limits for Trout and Salmon": {
-      "season": "Not specified",
-      "limits": "S-5 and C-2; total daily catch and possession limit for all trout and salmon species combined"
-    },
-    "Atlantic Salmon": {
-      "season": "open all year",
-      "limits": "S-1, must be greater than 63 cm, and C-0"
-    },
-    "Largemouth Bass": {
-      "season": "third Saturday in June to December 31 (catch-and-release January 1 to May 10)",
-      "limits": "S-6 and C-2; S-0 and C-0 during the catch-and-release season (January 1 to May 10)"
-    },
-    "Smallmouth Bass": {
-      "season": "first Saturday in July to December 31 (catch-and-release January 1 to May 10)",
-      "limits": "S-6 and C-2; S-0 and C-0 during the catch-and-release season (January 1 to May 10)"
-    },
-    "Brown Trout": {
-      "season": "open all year",
-      "limits": "S-5 and C-2"
-    },
-    "Channel Catfish": {
-      "season": "open all year",
-      "limits": "S-12 and C-6"
-    },
-    "Crappie": {
-      "season": "open all year",
-      "limits": "S-30 and C-10"
-    },
-    "Lake Sturgeon": {
-      "season": "closed all year",
-      "limits": "Not specified"
-    },
-    "Lake Trout": {
-      "season": "January 1 to September 30 and December 1 to December 31",
-      "limits": "S-3 and C-1"
-    },
-    "Lake Whitefish": {
-      "season": "open all year",
-      "limits": "S-12 and C-6"
-    },
-    "Muskellunge": {
-      "season": "third Saturday in June to December 15",
-      "limits": "S-1, must be greater than 137 cm, and C-0"
-    },
-    "Northern Pike": {
-      "season": "January 1 to March 31 and first Saturday in May to December 31",
-      "limits": "S-6 and C-2"
-    },
-    "Pacific Salmon": {
-      "season": "open all year",
-      "limits": "S-5 and C-2"
-    },
-    "Rainbow Trout": {
-      "season": "open all year",
-      "limits": "S-2 and C-1"
-    },
-    "Sunfish": {
-      "season": "open all year",
-      "limits": "S-100 and C-50"
-    },
-    "Walleye and Sauger combined": {
-      "season": "January 1 to March 1 and first Saturday in May to December 31",
-      "limits": "S-4 and C-2, not more than 1 greater than 63 cm"
-    },
-    "Yellow Perch": {
-      "season": "open all year",
-      "limits": "S-50 and C-25"
     }
   },
   "6": {
@@ -257,6 +122,27 @@
       "limits": "S-50 and C-25"
     }
   },
+  "7": {
+    "Aggregate Limits for Trout and Salmon": {
+      "season": "Not specified",
+      "limits": "S-5 and C-2; total daily catch and possession limit for all trout and salmon species combined"
+    },
+    "Lake Whitefish": {
+      "season": "open all year",
+      "limits": "S-25 and C-12"
+    },
+    "Muskellunge": {
+      "season": "closed all year",
+      "limits": "Not specified"
+    },
+    "Northern Pike": {
+      "season": "open all year",
+      "limits": "S-6; not more than 2 greater than 61 cm, of which not more than 1 greater than 86 cm, and C-2; not more than 1 greater than 61 cm, none greater than 86 cm"
+    },
+    "Yellow Perch": {
+      "limits": "S-50 and C-25"
+    }
+  },
   "8": {
     "Aggregate Limits for Trout and Salmon": {
       "season": "Not specified",
@@ -267,6 +153,23 @@
     "Lake Trout": {
       "season": "January 1 to September 30",
       "limits": "S-3 and C-1"
+    },
+    "Yellow Perch": {
+      "limits": "S-25 and C-12"
+    }
+  },
+  "10": {
+    "Aggregate Limits for Trout and Salmon": {
+      "season": "Not specified",
+      "limits": "S-5 and C-2; total daily catch and possession limit for all trout and salmon species combined"
+    },
+    "Yellow Perch": {
+      "season": "open all year",
+      "limits": "S-50 and C-25"
+    },
+    "Largemouth and Smallmouth Bass combined": {
+      "season": "Third Saturday in June to November 30",
+      "limits": "S-5 and C-2; total daily catch"
     }
   },
   "11": {
@@ -277,6 +180,23 @@
     "Northern Pike": {
       "season": "January 1 to third Sunday in March and third Saturday in May to December 31",
       "limits": "S-6; not more than 2 greater than 61 cm, of which not more than 1 is greater than 86 cm, and C-2; not more than 1 greater than 61 cm, none greater than 86 cm"
+    },
+    "Sunfish": {
+      "limits": "S-50 and C-25"
+    }
+  },
+  "12": {
+    "Lake Whitefish": {
+      "season": "open all year",
+      "limits": "S-12 and C-6"
+    },
+    "Lake Trout and Splake": {
+      "season": "Friday before fourth Saturday in April to September 30",
+      "limits": "S-2 and C-1; must be greater than 45 cm"
+    },
+    "Walleye and Sauger combined": {
+      "season": "January 1 to March 31 and Friday before third Saturday in May to December 31",
+      "limits": "S-5 and C-2; must be less than 40 cm"
     }
   },
   "13": {
@@ -307,6 +227,30 @@
       "limits": "S-3 and C-1"
     }
   },
+  "15": {
+    "Aggregate Limits for Trout and Salmon": {
+      "season": "Not specified",
+      "limits": "S-5 and C-2; total daily catch and possession limit for all trout and salmon species combined"
+    },
+    "Lake Whitefish": {
+      "season": "open all year",
+      "limits": "S-12 and C-6"
+    }
+  },
+  "16": {
+    "Lake Trout": {
+      "season": "January 1 to September 30",
+      "limits": "S-2 and C-1"
+    },
+    "Lake Whitefish": {
+      "season": "open all year",
+      "limits": "S-12 and C-6"
+    },
+    "Yellow Perch": {
+      "season": "open all year",
+      "limits": "S-50 and C-25"
+    }
+  },
   "17": {
     "Lake Whitefish": {
       "season": "fourth Saturday in April to November 15",
@@ -322,5 +266,77 @@
       "season": "Not specified",
       "limits": "S-5 and C-2; total daily catch and possession limit for all trout and salmon species combined"
     }
-  }
+  },
+  "20": {
+    "_full": true,
+    "Aggregate Limits for Trout and Salmon": {
+      "season": "Not specified",
+      "limits": "S-5 and C-2; total daily catch and possession limit for all trout and salmon species combined"
+    },
+    "Atlantic Salmon": {
+      "season": "open all year",
+      "limits": "S-1, must be greater than 63 cm, and C-0"
+    },
+    "Largemouth Bass": {
+      "season": "third Saturday in June to December 31 (catch-and-release January 1 to May 10)",
+      "limits": "S-6 and C-2; S-0 and C-0 during the catch-and-release season (January 1 to May 10)"
+    },
+    "Smallmouth Bass": {
+      "season": "first Saturday in July to December 31 (catch-and-release January 1 to May 10)",
+      "limits": "S-6 and C-2; S-0 and C-0 during the catch-and-release season (January 1 to May 10)"
+    },
+    "Brown Trout": {
+      "season": "open all year",
+      "limits": "S-5 and C-2"
+    },
+    "Channel Catfish": {
+      "season": "open all year",
+      "limits": "S-12 and C-6"
+    },
+    "Crappie": {
+      "season": "open all year",
+      "limits": "S-30 and C-10"
+    },
+    "Lake Sturgeon": {
+      "season": "closed all year",
+      "limits": "Not specified"
+    },
+    "Lake Trout": {
+      "season": "January 1 to September 30 and December 1 to December 31",
+      "limits": "S-3 and C-1"
+    },
+    "Lake Whitefish": {
+      "season": "open all year",
+      "limits": "S-12 and C-6"
+    },
+    "Muskellunge": {
+      "season": "third Saturday in June to December 15",
+      "limits": "S-1, must be greater than 137 cm, and C-0"
+    },
+    "Northern Pike": {
+      "season": "January 1 to March 31 and first Saturday in May to December 31",
+      "limits": "S-6 and C-2"
+    },
+    "Pacific Salmon": {
+      "season": "open all year",
+      "limits": "S-5 and C-2"
+    },
+    "Rainbow Trout": {
+      "season": "open all year",
+      "limits": "S-2 and C-1"
+    },
+    "Sunfish": {
+      "season": "open all year",
+      "limits": "S-100 and C-50"
+    },
+    "Walleye and Sauger combined": {
+      "season": "January 1 to March 1 and first Saturday in May to December 31",
+      "limits": "S-4 and C-2, not more than 1 greater than 63 cm"
+    },
+    "Yellow Perch": {
+      "season": "open all year",
+      "limits": "S-50 and C-25"
+    }
+  },
+  "_note": "Hand-verified fixes for entries the PDF's dense multi-column layout scrambles beyond automatic reassembly. Keyed by zone then species; applied by 02_clean_for_map.py after cleaning. A species not already present is added. Transcribed from the official 2026 summary."
 }

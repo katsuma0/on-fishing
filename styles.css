@@ -337,3 +337,7 @@
     .tab[data-tab="map"]{ display:none; }
     #app{ padding-left:var(--sidebar-w); }
   }
+
+  /* note shown on a fish page when its season/limit is a shared, combined group */
+  .combinednote{ margin-top:14px; padding:10px 12px; background:var(--fill-strong); border-radius:10px;
+    font-size:13px; line-height:1.45; color:var(--label-2); }
