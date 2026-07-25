@@ -838,6 +838,7 @@ let lastWater=null;
 let navStack=[];   /* the detail panel is a stack: one back button pops it, home when empty */
 function homeSections(on){ ['mainhome','fishhome'].forEach(id=>{ const e=document.getElementById(id); if(e) e.hidden=!on; }); }
 function showDetail(){ if(typeof exitMapTab==='function') exitMapTab(); rbox.hidden=true; detailEl.hidden=false; homeSections(false);
+  { var _lh=document.getElementById('learnhome'), _mh2=document.getElementById('morehome'); if(_lh) _lh.hidden=true; if(_mh2) _mh2.hidden=true; }
   /* microtask: runs after the caller has set the new content but before paint,
      so the whole panel rises in exactly once per open */
   Promise.resolve().then(()=>{ detailEl.classList.remove('anim'); void detailEl.offsetWidth; detailEl.classList.add('anim'); }); }
@@ -1137,8 +1138,8 @@ function fishBody(name){
 
 /* ---------------- sheets ---------------- */
 const backdrop=document.getElementById('backdrop');
-const aboutEl=document.getElementById('about'), versionsEl=document.getElementById('versions');
-function closeModals(){ aboutEl.classList.remove('on'); versionsEl.classList.remove('on'); backdrop.classList.remove('on'); }
+const versionsEl=document.getElementById('versions');
+function closeModals(){ versionsEl.classList.remove('on'); backdrop.classList.remove('on'); }
 function fillAboutStats(){
   var el=document.getElementById('aboutStats'); if(!el) return;
   var zones=(typeof REG!=='undefined')?Object.keys(REG).length:20;
@@ -1146,33 +1147,36 @@ function fillAboutStats(){
   function row(k,v){ return '<div style="display:flex;justify-content:space-between;align-items:baseline;padding:11px 2px;border-top:.5px solid var(--separator)"><span>'+k+'</span><span style="color:var(--label-2);font-variant-numeric:tabular-nums">'+v+'</span></div>'; }
   el.innerHTML=row('Fishing zones',zones)+row('Game fish',fish);
 }
-function openModal(el){ closeModals(); el.classList.add('on'); backdrop.classList.add('on'); el.scrollTop=0;
-  if(el===aboutEl){ if(typeof renderThemeRow==='function') renderThemeRow(); fillAboutStats(); } }
+function openModal(el){ closeModals(); el.classList.add('on'); backdrop.classList.add('on'); el.scrollTop=0; }
 
 /* ---- shared footer tab bar ---- */
 var fishLearnRendered=false;
 function exitMapTab(){ document.body.classList.remove('tab-map');
   var tb=document.getElementById('tabbar'); if(tb) tb.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('active', b.dataset.tab==='guide'); }); }
 function setPanelView(view){
-  var lh=document.getElementById('learnhome'), mh=document.getElementById('mainhome'), fh=document.getElementById('fishhome');
+  var lh=document.getElementById('learnhome'), mh=document.getElementById('mainhome'),
+      fh=document.getElementById('fishhome'), moreh=document.getElementById('morehome');
+  if(lh) lh.hidden=true; if(moreh) moreh.hidden=true;
   if(view==='learn'){
     if(mh) mh.hidden=true; if(fh) fh.hidden=true; if(detailEl) detailEl.hidden=true;
     var rb=document.getElementById('gresults'); if(rb) rb.hidden=true;
     if(lh) lh.hidden=false;
     if(!fishLearnRendered){ renderFishLearn(); fishLearnRendered=true; }
+  } else if(view==='more'){
+    if(mh) mh.hidden=true; if(fh) fh.hidden=true; if(detailEl) detailEl.hidden=true;
+    var rb2=document.getElementById('gresults'); if(rb2) rb2.hidden=true;
+    if(moreh) moreh.hidden=false;
+    if(typeof renderThemeRow==='function') renderThemeRow();
+    if(typeof fillAboutStats==='function') fillAboutStats();
   } else {
-    if(lh) lh.hidden=true;
     if(typeof restoreList==='function') restoreList();
   }
 }
 function showTab(tab){
   var tb=document.getElementById('tabbar');
-  if(tab==='more'){ if(typeof openModal==='function') openModal(aboutEl);
-    if(tb) tb.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('active', b.dataset.tab==='more'); });
-    if(typeof buzz==='function') buzz(6); return; }
   if(typeof closeModals==='function') closeModals();
   document.body.classList.toggle('tab-map', tab==='map');
-  setPanelView(tab==='learn' ? 'learn' : 'home');
+  setPanelView(tab==='learn' ? 'learn' : tab==='more' ? 'more' : 'home');
   if(tab==='search'){ var s=document.getElementById('search'); if(s) try{ s.focus(); }catch(e){} }
   if(tb) tb.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('active', b.dataset.tab===tab); });
   if(tab!=='map' && typeof panelEl!=='undefined' && panelEl) panelEl.scrollTop=0;
@@ -1180,7 +1184,13 @@ function showTab(tab){
 }
 (function(){ var tb=document.getElementById('tabbar');
   if(tb) tb.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('.tab'); if(b) showTab(b.dataset.tab); }); })();
-document.body.classList.add('tab-map');  /* open on the map, fishing's home */
+/* Mobile opens on the map (fishing's home). On a laptop the map is always in the
+   split beside the panel, so there is no Map tab; land on Guide instead. */
+(function(){
+  var desktop = window.matchMedia && window.matchMedia('(min-width:900px)').matches;
+  if(desktop){ showTab('guide'); }
+  else { document.body.classList.add('tab-map'); }
+})();
 
 function renderFishLearn(){
   var el=document.getElementById('fishLearnBody'); if(!el) return;
@@ -1216,7 +1226,7 @@ function renderThemeRow(){
   const el=document.getElementById('themeRow'); if(!el) return;
   const cur=fishAppearance();
   const opts=[['auto','Auto'],['light','Light'],['dark','Dark']];
-  el.innerHTML=opts.map(o=>`<div class="seg-opt${o[0]===cur?' on':''}" data-app="${o[0]}" role="button" tabindex="0">${o[1]}</div>`).join('');
+  el.innerHTML=opts.map(o=>`<button type="button" class="seg-opt${o[0]===cur?' on':''}" data-app="${o[0]}" aria-pressed="${o[0]===cur?'true':'false'}">${o[1]}</button>`).join('');
   el.querySelectorAll('.seg-opt').forEach(b=>{ b.onclick=()=>setAppearance(b.dataset.app); });
 }
 function setAppearance(mode){
@@ -1230,12 +1240,12 @@ function setAppearance(mode){
 }
 document.getElementById('verbtn').onclick=()=>openModal(versionsEl);
 const logo=document.getElementById('logobtn');
-logo.onclick=()=>openModal(aboutEl);
-logo.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openModal(aboutEl); } };
+logo.onclick=()=>showTab('guide');
+logo.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); showTab('guide'); } };
 backdrop.onclick=closeModals;
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModals(); });
 // swipe down to close, yielding to the sheet's own scroll
-[aboutEl,versionsEl].forEach(sh=>{
+[versionsEl].forEach(sh=>{
   let sy=null;
   sh.addEventListener('touchstart',e=>{ sy = sh.scrollTop<=0 ? e.touches[0].clientY : null; },{passive:true});
   sh.addEventListener('touchmove',e=>{ if(sy!=null && e.touches[0].clientY-sy>70){ closeModals(); sy=null; } },{passive:true});

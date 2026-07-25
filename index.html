@@ -7,10 +7,14 @@
 <meta name="description" content="Ontario's 20 fishing zones with seasons, limits and what is open right now."/>
 <meta name="theme-color" content="#f9f9f9" media="(prefers-color-scheme: light)"/>
 <meta name="theme-color" content="#1e1e1e" media="(prefers-color-scheme: dark)"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="on-fishing"/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="icon" type="image/png" href="icon-192.png"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css"/>
 <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
@@ -18,31 +22,8 @@
 <div class="sheet" id="versions" role="dialog" aria-modal="true" aria-label="Versions">
   <div class="grabber"></div>
   <div class="kind" style="margin-bottom:12px">Versions</div>
-  <div class="vlist"><div class="verline"><span class="vv">v0.82</span>Footer tabs: map, zones, search, learn and more, matched to the other apps</div><div class="verline"><span class="vv">v0.81</span>New title, one summary, about and stats</div><div class="verline"><span class="vv">v0.80</span>New look, one iOS style shared with ON Wildlife and ON Camp</div><div class="verline"><span class="vv">v0.78</span>One back button, a clear path, no more getting lost</div><div class="verline"><span class="vv">v0.73</span>Site Journal themes here too, dark map included</div><div class="verline"><span class="vv">v0.71</span>Fish ID, every species drawn and explained</div><div class="verline"><span class="vv">v0.70</span>Blue by default, it is water after all</div><div class="verline"><span class="vv">v0.69</span>One app with Site Journal, parks on the map</div><div class="verline"><span class="vv">v0.54</span>Search made fast, results paint in live</div><div class="verline"><span class="vv">v0.45</span>Phone sheet slides over the map</div><div class="verline"><span class="vv">v0.44</span>Search with category pills</div><div class="verline"><span class="vv">v0.41</span>Full lake pages from Fish ON-Line</div><div class="verline"><span class="vv">v0.37</span>Express edition released</div><div class="verline"><span class="vv">v0.30</span>Map redrawn on canvas, much smoother</div><div class="verline"><span class="vv">v0.26</span>Rebuilt on the shared design system</div><div class="verline"><span class="vv">v0.24</span>Every zone swept against the guide</div><div class="verline"><span class="vv">v0.19</span>Open today, species explorer, offline</div><div class="verline"><span class="vv">v0.13</span>Map wired to official zone boundaries</div><div class="verline"><span class="vv">v0.10</span>Seasons and limits out of the 148 page PDF</div></div>
+  <div class="vlist"><div class="verline"><span class="vv">v0.83</span>More is a full screen now, the map is bundled in for offline</div><div class="verline"><span class="vv">v0.82</span>Footer tabs: map, zones, search, learn and more, matched to the other apps</div><div class="verline"><span class="vv">v0.81</span>New title, one summary, about and stats</div><div class="verline"><span class="vv">v0.80</span>New look, one iOS style shared with ON Wildlife and ON Camp</div><div class="verline"><span class="vv">v0.78</span>One back button, a clear path, no more getting lost</div><div class="verline"><span class="vv">v0.73</span>Site Journal themes here too, dark map included</div><div class="verline"><span class="vv">v0.71</span>Fish ID, every species drawn and explained</div><div class="verline"><span class="vv">v0.70</span>Blue by default, it is water after all</div><div class="verline"><span class="vv">v0.69</span>One app with Site Journal, parks on the map</div><div class="verline"><span class="vv">v0.54</span>Search made fast, results paint in live</div><div class="verline"><span class="vv">v0.45</span>Phone sheet slides over the map</div><div class="verline"><span class="vv">v0.44</span>Search with category pills</div><div class="verline"><span class="vv">v0.41</span>Full lake pages from Fish ON-Line</div><div class="verline"><span class="vv">v0.37</span>Express edition released</div><div class="verline"><span class="vv">v0.30</span>Map redrawn on canvas, much smoother</div><div class="verline"><span class="vv">v0.26</span>Rebuilt on the shared design system</div><div class="verline"><span class="vv">v0.24</span>Every zone swept against the guide</div><div class="verline"><span class="vv">v0.19</span>Open today, species explorer, offline</div><div class="verline"><span class="vv">v0.13</span>Map wired to official zone boundaries</div><div class="verline"><span class="vv">v0.10</span>Seasons and limits out of the 148 page PDF</div></div>
 </div>
-<div class="sheet" id="about" role="dialog" aria-modal="true" aria-label="About">
-  <div class="grabber"></div>
-  <div class="kind" style="margin-bottom:12px">Appearance</div>
-  <div class="segmented" id="themeRow"></div>
-
-  <div class="kind" style="margin:24px 0 12px">More from the Ontario outdoors</div>
-  <a class="xapp" href="https://katsuma0.github.io/on-wildlife/" target="_blank" rel="noopener">on-wildlife<span class="xgo">Open</span></a>
-  <a class="xapp" id="campLink" href="https://katsuma0.github.io/on-camp/" target="_blank" rel="noopener">on-camp<span class="xgo">Open</span></a>
-  <div class="closing" style="margin-top:2px">Three field guides for Ontario, one look. Take all three.</div>
-
-  <div class="kind" style="margin:24px 0 12px">About</div>
-  <div class="aboutbody">
-    <p>on-fishing turns Ontario's fishing regulations into a map. Ontario publishes the rules each year as a 148 page PDF, and reading it on your phone at the boat launch is not it. Tap your zone and the seasons, the catch limits, and what is open today are right there.</p>
-    <p>It draws all 20 fisheries management zones live from the government's official boundary service, so the shapes are always current. Find your zone by GPS or by tapping the map, search a lake to see its zone and stocking history, and compare a species across the whole province. Every zone lists the waters that carry their own special rules.</p>
-    <p>It is not an official source. Seasons are reliable, but some limits and lake exceptions are pulled from a dense PDF and can be rough, so always confirm against the official summary before you fish. Nothing is tracked. The regulations are built into the page and it works offline once loaded.</p>
-  </div>
-  <div id="aboutStats" style="margin-top:6px"></div>
-  <a class="xapp" href="https://katsuma0.github.io" target="_blank" rel="noopener" style="margin-top:14px">Made by Katsuma Onishi<span class="xgo">katsuma0.github.io</span></a>
-  <div class="closing" style="margin-top:14px">Regulations from the 2026 summary · Zone boundaries from the Government of
-    Ontario · Fish plates by Sherman F. Denton (1896) and the U.S. Fish and Wildlife Service
-    · Data prepared 2026-07-21</div>
-</div>
-
 <div id="app">
   <div id="mapwrap">
     <div id="map"></div>
@@ -57,7 +38,7 @@
       <header class="appbar">
         <div class="titlebar">
           <h1 id="logobtn" tabindex="0" role="button">on-fishing</h1>
-          <button class="ver" id="verbtn">v0.82</button>
+          <button class="ver" id="verbtn">v0.83</button>
         </div>
         <p class="sub">Ontario's 20 fishing zones, with seasons, limits, and what is open right now.
           Not an official source, so check the <a href="https://www.ontario.ca/document/ontario-fishing-regulations-summary" target="_blank" rel="noopener">official summary</a> before you fish.</p>
@@ -83,6 +64,27 @@
         <div class="seclabel">Learn and safety</div>
         <div id="fishLearnBody"></div>
       </div>
+      <div id="morehome" hidden>
+        <div class="kind" style="margin:8px 0 12px">Appearance</div>
+        <div class="segmented" id="themeRow"></div>
+
+        <div class="kind" style="margin:24px 0 12px">More from the Ontario outdoors</div>
+        <a class="xapp" href="https://katsuma0.github.io/on-wildlife/" target="_blank" rel="noopener">on-wildlife<span class="xgo">Open</span></a>
+        <a class="xapp" id="campLink" href="https://katsuma0.github.io/on-camp/" target="_blank" rel="noopener">on-camp<span class="xgo">Open</span></a>
+        <div class="closing" style="margin-top:2px">Three field guides for Ontario, one look. Take all three.</div>
+
+        <div class="kind" style="margin:24px 0 12px">About</div>
+        <div class="aboutbody">
+          <p>on-fishing turns Ontario's fishing regulations into a map. Ontario publishes the rules each year as a 148 page PDF, and reading it on your phone at the boat launch is not it. Tap your zone and the seasons, the catch limits, and what is open today are right there.</p>
+          <p>It draws all 20 fisheries management zones live from the government's official boundary service, so the shapes are always current. Find your zone by GPS or by tapping the map, search a lake to see its zone and stocking history, and compare a species across the whole province. Every zone lists the waters that carry their own special rules.</p>
+          <p>It is not an official source. Seasons are reliable, but some limits and lake exceptions are pulled from a dense PDF and can be rough, so always confirm against the official summary before you fish. Nothing is tracked. The regulations are built into the page and it works offline once loaded.</p>
+        </div>
+        <div id="aboutStats" style="margin-top:6px"></div>
+        <a class="xapp" href="https://katsuma0.github.io" target="_blank" rel="noopener" style="margin-top:14px">Made by Katsuma Onishi<span class="xgo">katsuma0.github.io</span></a>
+        <div class="closing" style="margin-top:14px">Regulations from the 2026 summary · Zone boundaries from the Government of
+          Ontario · Fish plates by Sherman F. Denton (1896) and the U.S. Fish and Wildlife Service
+          · Data prepared 2026-07-21</div>
+      </div>
     </div>
     <footer>
       Not an official source. Always check the official summary before you fish.<br>
@@ -99,7 +101,7 @@
   <button class="tab" data-tab="more" type="button" aria-label="More"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>More</span></button>
 </nav>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="vendor/leaflet/leaflet.js"></script>
 <script src="data/regulations.js"></script>
 <script src="data/fish.js"></script>
 <script src="app.js"></script>
