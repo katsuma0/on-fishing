@@ -852,6 +852,7 @@ function qTokens(q){ return q.toLowerCase().split(/\s+/).filter(t=>t&&!FILLERS.i
 function matchName(name,tokens){ const n=name.toLowerCase(); return tokens.length&&tokens.every(t=>n.includes(t)); }
 function catOf(r){
   if(r.kind==='zone') return 'zone';
+  if(r.epark) return 'park';
   if(r.fish) return 'fish';
   if(r.place){ const t=(r.ptype||'').toLowerCase();
     if(t.includes('park')) return 'park';
@@ -882,7 +883,7 @@ function finalize(list,q){
   list=list.filter(r=>!/queen elizabeth ii wildlands|dalton digby wildlands/i.test(r.n||''));
   const best={};
   list.forEach(r=>{ if(catOf(r)!=='park') return;
-    const b=parkBase(r.n), pr=/\b(provincial|national) park\b/i.test(r.n)?2:1;
+    const b=parkBase(r.n), pr=r.epark?3:(/\b(provincial|national) park\b/i.test(r.n)?2:1);
     if(!best[b]||pr>best[b].pr) best[b]={r,pr}; });
   list=list.filter(r=>catOf(r)!=='park'||best[parkBase(r.n)].r===r);
   const seen=new Set(); const out=[];
@@ -917,6 +918,13 @@ function buildLocal(q){
         sub:[z?('Zone '+z):'', 'Park'].filter(Boolean).join(' · ')});
     else
       out.push({n:w[0], lat:w[1], lng:w[2], z:z, curated:true, sub:z?('Zone '+z):'Ontario'}); }});
+  /* Universal search: the Ontario provincial parks resolve to their fishing zone. */
+  if(window.ECO && tokens.length){
+    window.ECO.parks.forEach(pk=>{ if(!pk.fmz) return;
+      const hay=(pk.name+' '+(pk.region||'')).toLowerCase();
+      if(tokens.every(t=>hay.indexOf(t)>=0))
+        out.push({n:pk.name, z:pk.fmz, epark:true, sub:'Zone '+pk.fmz+' · Provincial park'}); });
+  }
   return out;
 }
 function renderResults(list, pending){
@@ -930,6 +938,7 @@ function renderResults(list, pending){
 function gotoResult(r){
   searchEl.value=r.n; gsearch.classList.add('has');
   if(r.kind==='zone'){ replaceRoot({type:'zone',z:Number(r.z)}); return; }
+  if(r.epark && r.z){ replaceRoot({type:'zone',z:Number(r.z)}); return; }
   if(r.fish){ openFishView(r.n); return; }
   openWater(r);
 }
