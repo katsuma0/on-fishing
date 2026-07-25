@@ -1,14 +1,18 @@
 /* Service worker: makes the map usable offline after the first visit.
-   - App shell (same-origin) is precached on install.
-   - Everything else (Leaflet/esri CDN, basemap tiles, the live FMZ boundary
-     service) is cached on first use with a stale-while-revalidate strategy,
-     so a previously loaded map keeps working without a connection.
+   - App shell (same-origin, including the vendored Leaflet) is precached on install.
+   - Everything else (basemap tiles, the live FMZ boundary service) is cached on
+     first use with a stale-while-revalidate strategy, so a previously loaded map
+     keeps working without a connection.
    Note: service workers only run over http(s) (e.g. GitHub Pages), not from a
    file:// path. */
-const CACHE = 'onfish-v0.81';
+const CACHE = 'onfish-v0.84';
 const SHELL = ['./', './index.html', './styles.css', './app.js',
   './data/regulations.js', './data/fish.js',
-  './manifest.json', './icon-192.png', './icon-512.png'];
+  './manifest.json', './icon-192.png', './icon-512.png',
+  './vendor/leaflet/leaflet.js', './vendor/leaflet/leaflet.css',
+  './vendor/leaflet/images/marker-icon.png', './vendor/leaflet/images/marker-icon-2x.png',
+  './vendor/leaflet/images/marker-shadow.png', './vendor/leaflet/images/layers.png',
+  './vendor/leaflet/images/layers-2x.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

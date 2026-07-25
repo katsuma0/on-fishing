@@ -41,7 +41,7 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;height:100%;background:var(--bg);color:var(--label);
     font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue','Segoe UI',Roboto,system-ui,sans-serif;
-    -webkit-font-smoothing:antialiased;line-height:1.45}
+    -webkit-font-smoothing:antialiased;line-height:1.4}
   body{overscroll-behavior-y:none}
   button,input,select{font-family:inherit;color:inherit}
   button{border:0;background:none;cursor:pointer;font:inherit}
@@ -87,7 +87,7 @@
     color:var(--label-2);margin:22px 4px 8px}
   .seclabel.grey{color:var(--label-2)}
   .zhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 0 2px}
-  .zhead h2{font-size:28px;font-weight:700;letter-spacing:-.3px;color:var(--label);margin:0}
+  .zhead h2{font-size:28px;font-weight:700;letter-spacing:-.3px;color:var(--label);margin:0;line-height:34px}
   .meta{font-size:14px;color:var(--label-2);margin:4px 0 0;font-variant-numeric:tabular-nums}
   .navback{appearance:none;display:inline-flex;align-items:center;gap:3px;color:var(--tint);
     font-weight:400;font-size:17px;padding:8px 10px 8px 0;margin:6px 0 2px;transition:opacity .14s}
@@ -111,7 +111,7 @@
     transition:background .12s,transform .12s}
   .gresult:active{background:var(--fill);transform:scale(.99)}
   .tag{flex:0 0 46px;width:46px;height:22px;display:flex;align-items:center;justify-content:center;
-    font-size:9.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;line-height:1;padding:0;
+    font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;line-height:1;padding:0;
     color:#fff;background:var(--tint);border-radius:99px}
   .tag.fish{background:var(--tint)} .tag.water{background:var(--blue)}
   .tag.town{background:var(--orange)} .tag.park{background:#2f8f5b} .tag.area{background:var(--orange)}
@@ -204,11 +204,11 @@
     white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;transform:translate(-50%,-50%)}
   .clabel{white-space:nowrap;color:var(--label);transform:translate(-4px,-50%);
     text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff}
-  .clabel.t1{font-weight:700;font-size:12.5px}
-  .clabel.t2{font-weight:500;font-size:11.5px}
+  .clabel.t1{font-weight:700;font-size:13px}
+  .clabel.t2{font-weight:500;font-size:11px}
   .cdot{display:inline-block;width:5px;height:5px;border-radius:99px;background:var(--label);
     opacity:.6;margin-right:4px;vertical-align:1px}
-  .alabel{font-style:italic;font-weight:500;font-size:11.5px;color:var(--label-2);white-space:nowrap;
+  .alabel{font-style:italic;font-weight:500;font-size:11px;color:var(--label-2);white-space:nowrap;
     text-shadow:0 0 3px #fff,0 0 3px #fff;transform:translate(-50%,-50%)}
   .z-far .clabel.t2{display:none}
   .z-hide .clabel,.z-hide .alabel{display:none}
@@ -225,11 +225,11 @@
 
   /* sheet --------------------------------------------------------------- */
   .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;
-    transition:opacity .3s var(--ease);z-index:40}
+    transition:opacity .3s var(--ease);z-index:50}
   .backdrop.on{opacity:1;pointer-events:auto}
   .sheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;transform:translateY(102%);
-    width:min(540px,100%);background:var(--bg);z-index:50;border-radius:12px 12px 0 0;
-    padding:8px 20px calc(24px + env(safe-area-inset-bottom));box-shadow:0 -1px 0 var(--separator);
+    width:min(540px,100%);background:var(--bg);z-index:60;border-radius:12px 12px 0 0;
+    padding:8px 16px calc(24px + env(safe-area-inset-bottom));box-shadow:0 -1px 0 var(--separator);
     transition:transform .34s var(--ease);max-height:92vh;overflow:auto}
   .sheet.on{transform:translateY(0)}
   .grabber{width:36px;height:5px;border-radius:3px;background:var(--label-3);margin:8px auto 16px}
@@ -268,7 +268,7 @@
   .xapp .xgo{font-size:15px;font-weight:400;color:var(--tint)}
   /* appearance segmented control */
   .segmented{display:flex;background:var(--fill-strong);border-radius:9px;padding:2px;gap:2px}
-  .seg-opt{flex:1;text-align:center;padding:9px 8px;border-radius:7px;font-size:14px;font-weight:500;
+  .seg-opt{flex:1;text-align:center;padding:9px 8px;border-radius:7px;font-size:13px;font-weight:500;
     color:var(--label);cursor:pointer;transition:background .15s}
   .seg-opt.on{background:var(--bg-elevated);box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600}
 
@@ -287,3 +287,53 @@
   #detail.anim{animation:blockIn .28s var(--ease)}
   @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}
     @view-transition{navigation:none}}
+
+  /* ===================== shared footer tab bar ===================== */
+  :root{ --tab-h:50px; }
+  .tabbar{ position:fixed; left:0; right:0; bottom:0; z-index:40; height:calc(var(--tab-h) + var(--sa-bottom));
+    padding-bottom:var(--sa-bottom); display:flex; background:var(--bar);
+    -webkit-backdrop-filter:saturate(180%) blur(20px); backdrop-filter:saturate(180%) blur(20px);
+    border-top:.5px solid var(--bar-border); }
+  .tab{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    color:var(--tab-inactive,#6d6d72); font-size:10px; font-weight:500; letter-spacing:.1px; padding:6px 0 0;
+    background:none; border:0; cursor:pointer; font-family:inherit; transition:color .15s, transform .1s; }
+  .tab svg{ width:26px; height:26px; }
+  .tab.active{ color:var(--tint); }
+  .tab.active span{ font-weight:700; }
+  .tab:active{ transform:scale(.92); }
+  :root{ --tab-inactive:#6d6d72; }
+  @media (prefers-color-scheme:dark){ :root{ --tab-inactive:rgba(235,235,245,.6); } }
+  :root[data-theme='light']{ --tab-inactive:#6d6d72; }
+  :root[data-theme='dark']{ --tab-inactive:rgba(235,235,245,.6); }
+  /* panel becomes full tab content above the bar; map shows on the Map tab */
+  @media (max-width:860px){
+    #panel{ position:fixed; left:0; right:0; top:0; bottom:calc(var(--tab-h) + env(safe-area-inset-bottom));
+      width:100%; max-width:none; min-width:0; height:auto; z-index:20; border-left:none; background:var(--bg);
+      overflow-y:auto; transform:none !important; border-radius:0; box-shadow:none; }
+    #panel.min,#panel.drag{ transform:none !important; border-radius:0; box-shadow:none; }
+    #panel .appbar,#panel.min .appbar{ transform:none !important; }
+    .pullwrap{ display:none !important; }
+    #mapwrap{ position:fixed; left:0; right:0; top:0; bottom:calc(var(--tab-h) + env(safe-area-inset-bottom)); }
+    body.tab-map #panel{ display:none; }
+  }
+  @media (min-width:861px){ .pullwrap{ display:none; } }
+
+  /* laptop / desktop: footer becomes a left sidebar; keep the map and panel split */
+  @media (min-width:900px){
+    :root{ --sidebar-w:248px; }
+    .tabbar{ top:0; bottom:0; left:0; right:auto; width:var(--sidebar-w); height:100dvh; max-width:none;
+      flex-direction:column; justify-content:flex-start; align-items:stretch; gap:3px;
+      padding:calc(20px + env(safe-area-inset-top)) 12px 20px; border-top:0; border-right:.5px solid var(--bar-border); }
+    .tabbar::before{ content:"on-fishing"; display:block; font-size:21px; font-weight:700; letter-spacing:-.4px;
+      color:var(--label); padding:4px 14px 18px; }
+    .tab{ flex:0 0 auto; flex-direction:row; justify-content:flex-start; align-items:center; gap:14px; height:46px;
+      padding:0 14px; border-radius:10px; font-size:16px; letter-spacing:-.2px; }
+    .tab svg{ width:24px; height:24px; }
+    .tab span{ font-weight:500; }
+    .tab.active{ background:var(--tint-soft); }
+    .tab.active span{ font-weight:600; }
+    /* The map is always visible beside the panel on desktop, so a separate Map
+       tab would be a no-op; hide it and let Guide be the leftmost destination. */
+    .tab[data-tab="map"]{ display:none; }
+    #app{ padding-left:var(--sidebar-w); }
+  }

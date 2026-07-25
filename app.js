@@ -837,7 +837,8 @@ let searchSeq=0;
 let lastWater=null;
 let navStack=[];   /* the detail panel is a stack: one back button pops it, home when empty */
 function homeSections(on){ ['mainhome','fishhome'].forEach(id=>{ const e=document.getElementById(id); if(e) e.hidden=!on; }); }
-function showDetail(){ rbox.hidden=true; detailEl.hidden=false; homeSections(false);
+function showDetail(){ if(typeof exitMapTab==='function') exitMapTab(); rbox.hidden=true; detailEl.hidden=false; homeSections(false);
+  { var _lh=document.getElementById('learnhome'), _mh2=document.getElementById('morehome'); if(_lh) _lh.hidden=true; if(_mh2) _mh2.hidden=true; }
   /* microtask: runs after the caller has set the new content but before paint,
      so the whole panel rises in exactly once per open */
   Promise.resolve().then(()=>{ detailEl.classList.remove('anim'); void detailEl.offsetWidth; detailEl.classList.add('anim'); }); }
@@ -1137,10 +1138,72 @@ function fishBody(name){
 
 /* ---------------- sheets ---------------- */
 const backdrop=document.getElementById('backdrop');
-const aboutEl=document.getElementById('about'), versionsEl=document.getElementById('versions');
-function closeModals(){ aboutEl.classList.remove('on'); versionsEl.classList.remove('on'); backdrop.classList.remove('on'); }
-function openModal(el){ closeModals(); el.classList.add('on'); backdrop.classList.add('on'); el.scrollTop=0;
-  if(el===aboutEl&&typeof renderThemeRow==='function') renderThemeRow(); }
+const versionsEl=document.getElementById('versions');
+function closeModals(){ versionsEl.classList.remove('on'); backdrop.classList.remove('on'); }
+function fillAboutStats(){
+  var el=document.getElementById('aboutStats'); if(!el) return;
+  var zones=(typeof REG!=='undefined')?Object.keys(REG).length:20;
+  var fish=(typeof FISH_ID!=='undefined')?FISH_ID.length:0;
+  function row(k,v){ return '<div style="display:flex;justify-content:space-between;align-items:baseline;padding:11px 2px;border-top:.5px solid var(--separator)"><span>'+k+'</span><span style="color:var(--label-2);font-variant-numeric:tabular-nums">'+v+'</span></div>'; }
+  el.innerHTML=row('Fishing zones',zones)+row('Game fish',fish);
+}
+function openModal(el){ closeModals(); el.classList.add('on'); backdrop.classList.add('on'); el.scrollTop=0; }
+
+/* ---- shared footer tab bar ---- */
+var fishLearnRendered=false;
+function exitMapTab(){ document.body.classList.remove('tab-map');
+  var tb=document.getElementById('tabbar'); if(tb) tb.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('active', b.dataset.tab==='guide'); }); }
+function setPanelView(view){
+  var lh=document.getElementById('learnhome'), mh=document.getElementById('mainhome'),
+      fh=document.getElementById('fishhome'), moreh=document.getElementById('morehome');
+  if(lh) lh.hidden=true; if(moreh) moreh.hidden=true;
+  if(view==='learn'){
+    if(mh) mh.hidden=true; if(fh) fh.hidden=true; if(detailEl) detailEl.hidden=true;
+    var rb=document.getElementById('gresults'); if(rb) rb.hidden=true;
+    if(lh) lh.hidden=false;
+    if(!fishLearnRendered){ renderFishLearn(); fishLearnRendered=true; }
+  } else if(view==='more'){
+    if(mh) mh.hidden=true; if(fh) fh.hidden=true; if(detailEl) detailEl.hidden=true;
+    var rb2=document.getElementById('gresults'); if(rb2) rb2.hidden=true;
+    if(moreh) moreh.hidden=false;
+    if(typeof renderThemeRow==='function') renderThemeRow();
+    if(typeof fillAboutStats==='function') fillAboutStats();
+  } else {
+    if(typeof restoreList==='function') restoreList();
+  }
+}
+function showTab(tab){
+  var tb=document.getElementById('tabbar');
+  if(typeof closeModals==='function') closeModals();
+  document.body.classList.toggle('tab-map', tab==='map');
+  setPanelView(tab==='learn' ? 'learn' : tab==='more' ? 'more' : 'home');
+  if(tab==='search'){ var s=document.getElementById('search'); if(s) try{ s.focus(); }catch(e){} }
+  if(tb) tb.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('active', b.dataset.tab===tab); });
+  if(tab!=='map' && typeof panelEl!=='undefined' && panelEl) panelEl.scrollTop=0;
+  if(typeof buzz==='function') buzz(6);
+}
+(function(){ var tb=document.getElementById('tabbar');
+  if(tb) tb.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('.tab'); if(b) showTab(b.dataset.tab); }); })();
+/* Mobile opens on the map (fishing's home). On a laptop the map is always in the
+   split beside the panel, so there is no Map tab; land on Guide instead. */
+(function(){
+  var desktop = window.matchMedia && window.matchMedia('(min-width:900px)').matches;
+  if(desktop){ showTab('guide'); }
+  else { document.body.classList.add('tab-map'); }
+})();
+
+function renderFishLearn(){
+  var el=document.getElementById('fishLearnBody'); if(!el) return;
+  var A=[
+    {t:'Before you fish', b:'You need an Outdoors Card and a valid licence to fish in Ontario, and the rules change by zone and by species. This app is a quick check, not the official word, so confirm the seasons and limits against the official summary before you keep anything.'},
+    {t:'Handling and releasing fish', b:'If you are letting a fish go, give it the best chance. Wet your hands first, keep it in the water as much as you can, and support its belly. Pinch the barb or use barbless hooks, and back the hook out gently. If it is hooked deep, cut the line rather than digging. Do not hold a fish by the gills, and get it back in the water quickly, facing into the current until it swims off on its own.'},
+    {t:'Protect the water', b:'Invasive species like zebra mussels and spiny water flea move from lake to lake on boats and gear. Clean, drain, and dry everything between waters. Never move live fish or bait from one lake to another, and put leftover bait in the trash, not the water.'},
+    {t:'Is it safe to eat?', b:'Ontario publishes eating guidelines because some fish carry mercury or other contaminants, more so in bigger, older fish. Check the province Guide to Eating Ontario Fish for your lake and species, and go easy on large predators like walleye and pike if you eat fish often.'},
+    {t:'Cold water and weather', b:'Cold water is the real danger, even in summer. Wear a lifejacket, tell someone your plan, and watch the sky. If a storm builds, get off the water and away from tall lone trees. A sudden dunk in cold water saps your strength fast.'},
+    {t:'Report a problem', b:'Seeing pollution, a fishing violation, or someone moving live fish between lakes? Report it to the ministry TIPS-MNR line at 1-877-847-7667.'}
+  ];
+  el.innerHTML=A.map(function(a){ return '<details class="blk"><summary>'+a.t+'</summary><div class="body"><p style="margin:2px 0 0;font-size:14px;line-height:1.5;color:var(--label)">'+a.b+'</p></div></details>'; }).join('');
+}
 
 /* ---------------- themes, borrowed whole from Site Journal ----------------
    The palette math below is ported from Site Journal so an unlocked theme
@@ -1163,7 +1226,7 @@ function renderThemeRow(){
   const el=document.getElementById('themeRow'); if(!el) return;
   const cur=fishAppearance();
   const opts=[['auto','Auto'],['light','Light'],['dark','Dark']];
-  el.innerHTML=opts.map(o=>`<div class="seg-opt${o[0]===cur?' on':''}" data-app="${o[0]}" role="button" tabindex="0">${o[1]}</div>`).join('');
+  el.innerHTML=opts.map(o=>`<button type="button" class="seg-opt${o[0]===cur?' on':''}" data-app="${o[0]}" aria-pressed="${o[0]===cur?'true':'false'}">${o[1]}</button>`).join('');
   el.querySelectorAll('.seg-opt').forEach(b=>{ b.onclick=()=>setAppearance(b.dataset.app); });
 }
 function setAppearance(mode){
@@ -1177,12 +1240,12 @@ function setAppearance(mode){
 }
 document.getElementById('verbtn').onclick=()=>openModal(versionsEl);
 const logo=document.getElementById('logobtn');
-logo.onclick=()=>openModal(aboutEl);
-logo.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openModal(aboutEl); } };
+logo.onclick=()=>showTab('guide');
+logo.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); showTab('guide'); } };
 backdrop.onclick=closeModals;
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModals(); });
 // swipe down to close, yielding to the sheet's own scroll
-[aboutEl,versionsEl].forEach(sh=>{
+[versionsEl].forEach(sh=>{
   let sy=null;
   sh.addEventListener('touchstart',e=>{ sy = sh.scrollTop<=0 ? e.touches[0].clientY : null; },{passive:true});
   sh.addEventListener('touchmove',e=>{ if(sy!=null && e.touches[0].clientY-sy>70){ closeModals(); sy=null; } },{passive:true});
