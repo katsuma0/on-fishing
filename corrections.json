@@ -11,6 +11,10 @@
     "Aggregate Limits for Trout and Salmon": {
       "season": "Not specified",
       "limits": "S-5 and C-2; total daily catch and possession limit for all trout and salmon species combined"
+    },
+    "Northern Pike": {
+      "season": "open all year",
+      "limits": "S-4 and C-2; none between 70 cm to 90 cm, not more than 1 greater than 90 cm"
     }
   },
   "4": {
@@ -169,7 +173,7 @@
     },
     "Largemouth and Smallmouth Bass combined": {
       "season": "Third Saturday in June to November 30",
-      "limits": "S-5 and C-2; total daily catch"
+      "limits": "S-6 and C-3"
     }
   },
   "11": {
@@ -183,6 +187,10 @@
     },
     "Sunfish": {
       "limits": "S-50 and C-25"
+    },
+    "Brook Trout": {
+      "season": "February 15 to September 30",
+      "limits": "S-5; not more than 1 greater than 31 cm, and C-2; none greater than 31 cm"
     }
   },
   "12": {

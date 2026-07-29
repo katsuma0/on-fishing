@@ -522,10 +522,9 @@ setOverlay(overlayOn);
 
 /* ---------------- park pins (Site Journal's parks) ---------------- */
 const PARK_PINS=[{"id":"aaron","name":"Aaron","lat":49.7596,"lng":-92.6535},{"id":"algonquinachray","name":"Achray","lat":45.8664,"lng":-77.7534},{"id":"arrowhead","name":"Arrowhead","lat":45.3917,"lng":-79.1986},{"id":"awenda","name":"Awenda","lat":44.8413,"lng":-79.9925},{"id":"balsamlake","name":"Balsam Lake","lat":44.6278,"lng":-78.865},{"id":"basslake","name":"Bass Lake","lat":44.6044,"lng":-79.4808},{"id":"batchawanabay","name":"Batchawana Bay","lat":46.9333,"lng":-84.6167},{"id":"bluelake","name":"Blue Lake","lat":49.8933,"lng":-93.5413},{"id":"bonecho","name":"Bon Echo","lat":44.9115,"lng":-77.2661},{"id":"bonnechere","name":"Bonnechere","lat":45.6621,"lng":-77.5718},{"id":"boynevalley","name":"Boyne Valley","lat":44.1167,"lng":-80.1333},{"id":"algonquinbrent","name":"Brent","lat":46.1746,"lng":-78.4914},{"id":"brontecreek","name":"Bronte Creek","lat":43.4156,"lng":-79.7678},{"id":"caliperlake","name":"Caliper Lake","lat":49.0635,"lng":-93.9127},{"id":"algonquincanisbay","name":"Canisbay","lat":45.592,"lng":-78.6425},{"id":"charlestonlake","name":"Charleston Lake","lat":44.5197,"lng":-76.0383},{"id":"chutes","name":"Chutes","lat":46.221,"lng":-82.0723},{"id":"craigleith","name":"Craigleith","lat":44.5333,"lng":-80.35},{"id":"darlington","name":"Darlington","lat":43.8725,"lng":-78.7839},{"id":"devilsglen","name":"Devil's Glen","lat":44.3833,"lng":-80.2},{"id":"driftwood","name":"Driftwood","lat":46.1877,"lng":-77.8534},{"id":"earlrowe","name":"Earl Rowe","lat":44.1579,"lng":-79.905},{"id":"emily","name":"Emily","lat":44.3374,"lng":-78.535},{"id":"eskerlakes","name":"Esker Lakes","lat":48.3203,"lng":-79.8775},{"id":"fairbank","name":"Fairbank","lat":46.4719,"lng":-81.4411},{"id":"ferris","name":"Ferris","lat":44.2919,"lng":-77.7939},{"id":"finlaysonpoint","name":"Finlayson Point","lat":47.0552,"lng":-79.8046},{"id":"fitzroy","name":"Fitzroy","lat":45.4826,"lng":-76.2179},{"id":"forksofthecredit","name":"Forks of the Credit","lat":43.8236,"lng":-80.0114},{"id":"frenchriver","name":"French River","lat":46.032,"lng":-80.3252},{"id":"frontenac","name":"Frontenac","lat":44.5422,"lng":-76.5106},{"id":"fushimilake","name":"Fushimi Lake","lat":49.82,"lng":-83.9172},{"id":"grundy","name":"Grundy Lake","lat":45.9488,"lng":-80.5375},{"id":"halfwaylake","name":"Halfway Lake","lat":46.9108,"lng":-81.6531},{"id":"inverhuron","name":"Inverhuron","lat":44.3002,"lng":-81.5903},{"id":"ivanhoelake","name":"Ivanhoe Lake","lat":48.1491,"lng":-82.5118},{"id":"johnepearce","name":"John E. Pearce","lat":42.5814,"lng":-81.4644},{"id":"kakabekafalls","name":"Kakabeka Falls","lat":48.3987,"lng":-89.6266},{"id":"kawarthahighlands","name":"Kawartha Highlands","lat":44.7292,"lng":-78.2069},{"id":"algonquinkearney","name":"Kearney Lake","lat":45.5397,"lng":-78.3948},{"id":"kettlelakes","name":"Kettle Lakes","lat":48.5692,"lng":-80.8694},{"id":"killarney","name":"Killarney","lat":46.1006,"lng":-81.3811},{"id":"killbear","name":"Killbear","lat":45.3548,"lng":-80.1983},{"id":"algonquinkiosk","name":"Kiosk","lat":46.0977,"lng":-78.8815},{"id":"komoka","name":"Komoka","lat":42.9499,"lng":-81.3974},{"id":"lakestpeter","name":"Lake St. Peter","lat":45.3343,"lng":-78.0233},{"id":"lakesuperior","name":"Lake Superior","lat":47.5968,"lng":-84.7416},{"id":"algonquintworivers","name":"Lake of Two Rivers","lat":45.5787,"lng":-78.4933},{"id":"longpoint","name":"Long Point","lat":42.5797,"lng":-80.3838},{"id":"macgregorpoint","name":"MacGregor Point","lat":44.4096,"lng":-81.4691},{"id":"macleod","name":"MacLeod","lat":49.6893,"lng":-86.8985},{"id":"makobegrays","name":"Makobe-Grays River","lat":47.3872,"lng":-80.2882},{"id":"mara","name":"Mara","lat":44.5875,"lng":-79.3592},{"id":"markburnham","name":"Mark S. Burnham","lat":44.2999,"lng":-78.2692},{"id":"martenriver","name":"Marten River","lat":46.7232,"lng":-79.8148},{"id":"mcraepoint","name":"McRae Point","lat":44.5713,"lng":-79.328},{"id":"algonquinmew","name":"Mew Lake","lat":45.5747,"lng":-78.5237},{"id":"mikisew","name":"Mikisew","lat":45.8219,"lng":-79.5114},{"id":"miserybay","name":"Misery Bay","lat":45.791,"lng":-82.745},{"id":"missinaibi","name":"Missinaibi","lat":48.3145,"lng":-83.7291},{"id":"mississagi","name":"Mississagi","lat":46.5883,"lng":-82.6883},{"id":"monocliffs","name":"Mono Cliffs","lat":44.0453,"lng":-80.0764},{"id":"murphyspoint","name":"Murphys Point","lat":44.7828,"lng":-76.2197},{"id":"nagagamisis","name":"Nagagamisis","lat":49.4634,"lng":-84.7465},{"id":"neys","name":"Neys","lat":48.755,"lng":-86.5761},{"id":"northbeach","name":"North Beach","lat":43.9469,"lng":-77.5364},{"id":"oastlerlake","name":"Oastler Lake","lat":45.3124,"lng":-79.9639},{"id":"obabikariver","name":"Obabika River","lat":47.048,"lng":-80.1783},{"id":"ojibway","name":"Ojibway","lat":49.9882,"lng":-92.1457},{"id":"ouimetcanyon","name":"Ouimet Canyon","lat":48.7881,"lng":-88.67},{"id":"oxtongueriver","name":"Oxtongue River, Ragged Falls","lat":45.3799,"lng":-78.9078},{"id":"pakwash","name":"Pakwash","lat":50.785,"lng":-93.4414},{"id":"pancakebay","name":"Pancake Bay","lat":46.9697,"lng":-84.6918},{"id":"petroglyphs","name":"Petroglyphs","lat":44.6206,"lng":-78.0461},{"id":"pigeonriver","name":"Pigeon River","lat":48.0333,"lng":-89.6167},{"id":"pinery","name":"Pinery","lat":43.2815,"lng":-81.7978},{"id":"algonquinpog","name":"Pog Lake","lat":45.546,"lng":-78.3934},{"id":"pointfarms","name":"Point Farms","lat":43.8049,"lng":-81.7173},{"id":"portbruce","name":"Port Bruce","lat":42.66,"lng":-81.008},{"id":"portburwell","name":"Port Burwell","lat":42.648,"lng":-80.8162},{"id":"potholes","name":"Potholes","lat":47.9167,"lng":-84.5833},{"id":"presquile","name":"Presqu'ile","lat":43.9939,"lng":-77.7131},{"id":"quetico","name":"Quetico","lat":48.3774,"lng":-91.5167},{"id":"algonquinraccoon","name":"Raccoon Lake","lat":45.5307,"lng":-78.3841},{"id":"rainbowfalls","name":"Rainbow Falls","lat":48.8475,"lng":-87.3922},{"id":"renebrunelle","name":"Rene Brunelle","lat":49.4481,"lng":-82.1475},{"id":"restoule","name":"Restoule","lat":46.0672,"lng":-79.7732},{"id":"rideauriver","name":"Rideau River","lat":45.0592,"lng":-75.6711},{"id":"algonquinrock","name":"Rock Lake","lat":45.5288,"lng":-78.3822},{"id":"rockpoint","name":"Rock Point","lat":42.8494,"lng":-79.5542},{"id":"rondeau","name":"Rondeau","lat":42.287,"lng":-81.852},{"id":"rushingriver","name":"Rushing River","lat":49.6869,"lng":-94.2289},{"id":"samueldechamplain","name":"Samuel de Champlain","lat":46.2922,"lng":-78.8675},{"id":"sandbanks","name":"Sandbanks","lat":43.9186,"lng":-77.2936},{"id":"sandbarlake","name":"Sandbar Lake","lat":49.4668,"lng":-91.5587},{"id":"saublefalls","name":"Sauble Falls","lat":44.6756,"lng":-81.2568},{"id":"selkirk","name":"Selkirk","lat":42.8139,"lng":-79.9589},{"id":"sharbotlake","name":"Sharbot Lake","lat":44.7714,"lng":-76.7253},{"id":"shorthills","name":"Short Hills","lat":43.1,"lng":-79.2833},{"id":"sibbaldpoint","name":"Sibbald Point","lat":44.3278,"lng":-79.3211},{"id":"silentlake","name":"Silent Lake","lat":44.9096,"lng":-78.051},{"id":"silverfalls","name":"Silver Falls","lat":48.6839,"lng":-89.606},{"id":"silverlake","name":"Silver Lake","lat":44.8309,"lng":-76.5773},{"id":"siouxnarrows","name":"Sioux Narrows","lat":49.424,"lng":-94.0499},{"id":"sixmilelake","name":"Six Mile Lake","lat":44.8914,"lng":-79.7533},{"id":"sleepinggiant","name":"Sleeping Giant","lat":48.4333,"lng":-88.7653},{"id":"solace","name":"Solace","lat":47.15,"lng":-80.4667},{"id":"spanishriver","name":"Spanish River","lat":46.7,"lng":-81.95},{"id":"springwater","name":"Springwater","lat":44.4396,"lng":-79.7615},{"id":"sturgeonbay","name":"Sturgeon Bay","lat":45.6236,"lng":-80.4154},{"id":"sturgeonriver","name":"Sturgeon River","lat":46.9833,"lng":-80.7333},{"id":"algonquintea","name":"Tea Lake","lat":45.5586,"lng":-78.7803},{"id":"themassasauga","name":"The Massasauga","lat":45.1969,"lng":-80.0498},{"id":"tidewater","name":"Tidewater","lat":51.2333,"lng":-80.6167},{"id":"turkeypoint","name":"Turkey Point","lat":42.7053,"lng":-80.3325},{"id":"voyageur","name":"Voyageur","lat":45.5508,"lng":-74.434},{"id":"wabakimi","name":"Wabakimi","lat":50.6217,"lng":-89.619},{"id":"wakamilake","name":"Wakami Lake","lat":47.489,"lng":-82.8326},{"id":"wasagabeach","name":"Wasaga Beach","lat":44.5167,"lng":-80.0167},{"id":"wheatley","name":"Wheatley","lat":42.09,"lng":-82.4472},{"id":"whitelake","name":"White Lake","lat":48.699,"lng":-85.673},{"id":"windylake","name":"Windy Lake","lat":46.6191,"lng":-81.4479},{"id":"woodlandcaribou","name":"Woodland Caribou","lat":50.9986,"lng":-94.7503}];
-/* bundled inside the Site Journal iOS app this page lives at fishing/, so home is one level up */
-const IN_APP=!!window.Capacitor||location.protocol==='capacitor:';
-const SJ_URL=IN_APP?'../index.html':'https://katsuma0.github.io/on-camp/';
-if(IN_APP){ const xa=document.getElementById('campLink'); if(xa) xa.href='../index.html'; }
+/* park pages live in the sibling on-camp app; from the iOS shell the link
+   opens in Safari (the old bundled-inside-on-camp layout no longer exists) */
+const SJ_URL='https://katsuma0.github.io/on-camp/';
 const SJ_PARK_IDS={}; PARK_PINS.forEach(p=>{ SJ_PARK_IDS[parkBase(p.name)]=p.id; });
 map.createPane('parks');
 map.getPane('parks').style.zIndex=455;
@@ -708,9 +707,17 @@ function paintTiles(){
     c.classList.toggle('on',Number(c.dataset.zone)===selectedZone));
 }
 /* ---------------- detail navigation stack ---------------- */
-function titleOf(v){ return v.type==='zone'?('Zone '+v.z) : v.type==='fish'?v.name : v.w.n; }
+function titleOf(v){
+  if(v.type==='zone') return 'Zone '+v.z;
+  if(v.type==='fish') return v.name;
+  if(v.type==='catchlog') return 'Catch log';
+  if(v.type==='shared') return sharedTitle(v.item);
+  return v.w.n;
+}
 function subOf(v){
   if(v.type==='zone') return (zoneMeta[v.z]&&zoneMeta[v.z].name)?esc(zoneMeta[v.z].name):'Seasons and limits';
+  if(v.type==='catchlog'){ const n=loadCatches().length; return n?(n+(n===1?' catch logged':' catches logged')):'On your phone, ready to share'; }
+  if(v.type==='shared') return 'Shared with you';
   if(v.type==='fish'){ const m=fishRegInfo(v.name).merged; let n=0,open=0; for(let z=1;z<=20;z++) if(m[z]){ n++; if(seasonStatus(m[z].rec.season).status==='open') open++; }
     return open+' of '+n+' zones open now'; }
   if(v.type==='place'){ const kind=/park/i.test(v.w.ptype||'')?v.w.ptype:'Town';
@@ -723,6 +730,8 @@ function bodyOf(v){
   if(v.type==='fish') return fishBody(v.name);
   if(v.type==='water') return waterBody(v.w);
   if(v.type==='place') return placeBody(v.w);
+  if(v.type==='catchlog') return catchlogBody();
+  if(v.type==='shared') return sharedBody(v.item);
   return '';
 }
 function paintNav(){
@@ -752,7 +761,8 @@ function wireBody(v){
     detailEl.querySelectorAll('.srow[data-z]').forEach(row=>row.onclick=()=>pushView({type:'zone',z:Number(row.dataset.z)}));
   } else if(v.type==='water'||v.type==='place'){
     const zb=document.getElementById('wzone'); if(zb&&v.w.z) zb.onclick=()=>pushView({type:'zone',z:Number(v.w.z)});
-  }
+  } else if(v.type==='catchlog'){ wireCatchlog();
+  } else if(v.type==='shared'){ wireShared(v.item); }
 }
 function applyMapForView(v){
   if(v.type==='zone'){ selectedZone=v.z; exploreSpecies=null; restyleZones(); paintTiles(); zoomToZone(v.z);
@@ -761,7 +771,7 @@ function applyMapForView(v){
     if(typeof setOverlay==='function' && typeof overlayOn!=='undefined' && !overlayOn) setOverlay(true);
     restyleZones(); paintTiles(); }
   else { exploreSpecies=null; restyleZones(); paintTiles();
-    if(IS_MAP && v.w.lat!=null) goToWater(v.w.n,v.w.lat,v.w.lng,null); }
+    if(IS_MAP && v.w && v.w.lat!=null) goToWater(v.w.n,v.w.lat,v.w.lng,null); }
 }
 function pushView(v){ navStack.push(v); paintNav(); }
 function replaceRoot(v){ navStack=[v]; paintNav(); }
@@ -1188,6 +1198,176 @@ function fillAboutStats(){
 }
 function openModal(el){ closeModals(); el.classList.add('on'); backdrop.classList.add('on'); el.scrollTop=0; }
 
+/* ==================================================================
+   Catch log + share
+   A private, on-device journal of what you catch, and a share that puts a
+   clean card and a #/shared/<data> deep link into the iMessage share sheet.
+   The link carries the whole catch (or day), so a recipient opens the exact
+   same card. No server, nothing tracked. share.js renders the card. */
+function clToast(msg){
+  var t=document.createElement('div'); t.className='cl-toast'; t.textContent=msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(function(){ t.classList.add('on'); });
+  setTimeout(function(){ t.classList.remove('on'); setTimeout(function(){ t.remove(); }, 240); }, 1900);
+}
+function pad2(n){ return (n<10?'0':'')+n; }
+function fishToday(){ var d=new Date(); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function dayKey(iso){ var d=new Date(iso); if(isNaN(d)) return String(iso).slice(0,10); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function fmtDayLabel(key){ var d=new Date(key+'T12:00:00'); if(isNaN(d)) return key;
+  return d.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'}); }
+function uidc(){ return 'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function cval(id){ var e=document.getElementById(id); return e?(e.value||''):''; }
+
+function loadCatches(){ try{ return JSON.parse(localStorage.getItem('onfish-catchlog')||'[]'); }catch(e){ return []; } }
+function saveCatches(a){ try{ localStorage.setItem('onfish-catchlog', JSON.stringify(a)); }catch(e){} }
+function addCatch(c){ var a=loadCatches(); a.unshift(c); saveCatches(a); }
+function delCatch(id){ saveCatches(loadCatches().filter(function(c){ return c.id!==id; })); }
+function groupByDay(cats){
+  var map={}, order=[];
+  cats.forEach(function(c){ var k=dayKey(c.when); if(!map[k]){ map[k]=[]; order.push(k); } map[k].push(c); });
+  order.sort(function(a,b){ return a<b?1:a>b?-1:0; });   // newest day first
+  return order.map(function(k){ return { date:k, items:map[k] }; });
+}
+
+function catchRow(c){
+  var bits=[]; if(c.z) bits.push('Zone '+c.z); if(c.water) bits.push(esc(c.water));
+  var size=(c.len!=null&&c.len!=='')?(c.len+' '+(c.unit||'cm')):'';
+  var line2=[size, c.rel?'Released':'Kept'].filter(Boolean).join(' · ');
+  return '<div class="srow cl-catch" data-id="'+esc(c.id)+'"><div class="col">'
+    +'<div class="nm">'+esc(c.sp)+'</div>'
+    +(bits.length?'<div class="mt">'+bits.join(' · ')+'</div>':'')
+    +'<div class="mt">'+line2+'</div>'
+    +(c.notes?'<div class="mt cl-note">“'+esc(c.notes)+'”</div>':'')
+    +'</div><div class="cl-actions">'
+    +'<button class="cl-share" data-share-catch="'+esc(c.id)+'">Share</button>'
+    +'<button class="cl-del" data-del-catch="'+esc(c.id)+'" aria-label="Delete this catch">✕</button>'
+    +'</div></div>';
+}
+function catchlogBody(){
+  var cats=loadCatches();
+  var speciesOpts=FISH_ID.map(function(f){ return '<option value="'+esc(f.name)+'">'+esc(f.name)+'</option>'; }).join('');
+  var zoneOpts=''; for(var z=1;z<=20;z++) zoneOpts+='<option value="'+z+'">Zone '+z+'</option>';
+  var form='<details class="blk cl-form" id="cl-form"><summary>Log a catch</summary><div class="body">'
+    +'<label class="cl-field"><span>Species</span><select id="cf-sp">'+speciesOpts+'</select></label>'
+    +'<label class="cl-field"><span>Zone</span><select id="cf-z">'+zoneOpts+'</select></label>'
+    +'<label class="cl-field"><span>Water</span><input id="cf-water" placeholder="Lake or river (optional)"></label>'
+    +'<div class="cl-row">'
+      +'<label class="cl-field grow"><span>Length</span><input id="cf-len" type="number" inputmode="decimal" min="0" step="0.1" placeholder="optional"></label>'
+      +'<label class="cl-field"><span>Unit</span><select id="cf-unit"><option>cm</option><option>in</option></select></label>'
+    +'</div>'
+    +'<div class="cl-row">'
+      +'<label class="cl-field grow"><span>Kept or released</span><select id="cf-rel"><option value="1">Released</option><option value="0">Kept</option></select></label>'
+      +'<label class="cl-field grow"><span>Date</span><input id="cf-date" type="date" value="'+fishToday()+'"></label>'
+    +'</div>'
+    +'<label class="cl-field"><span>Notes</span><textarea id="cf-notes" rows="2" placeholder="Bait, weather, who you were with (optional)"></textarea></label>'
+    +'<button class="btn" id="cf-save" style="width:100%;margin-top:6px">Save catch</button>'
+    +'</div></details>';
+  if(!cats.length) return form+'<p class="empty">No catches yet. Log your first one, then share the card straight to Messages.</p>';
+  var out=form;
+  groupByDay(cats).forEach(function(g){
+    out+='<div class="cl-day"><div class="cl-dayhead"><span class="seclabel grey">'+esc(fmtDayLabel(g.date))+'</span>'
+      +'<button class="cl-share cl-shareday" data-share-day="'+esc(g.date)+'">Share day</button></div>';
+    g.items.forEach(function(c){ out+=catchRow(c); });
+    out+='</div>';
+  });
+  return out;
+}
+function wireCatchlog(){
+  var save=document.getElementById('cf-save');
+  if(save) save.onclick=function(){
+    var sp=cval('cf-sp'); if(!sp){ return; }
+    var lenRaw=cval('cf-len').trim();
+    var len=(lenRaw!==''&&!isNaN(parseFloat(lenRaw)))?parseFloat(lenRaw):null;
+    var f=FISH_ID.filter(function(x){ return x.name===sp; })[0];
+    var date=cval('cf-date');
+    var when=date?new Date(date+'T12:00:00').toISOString():new Date().toISOString();
+    var notes=cval('cf-notes').trim();
+    addCatch({ id:uidc(), sp:sp, img:f?f.img:'', z:Number(cval('cf-z'))||null,
+      water:cval('cf-water').trim(), len:len, unit:cval('cf-unit')||'cm',
+      rel:cval('cf-rel')==='1', when:when, notes:notes.length>240?notes.slice(0,237)+'…':notes });
+    if(typeof buzz==='function') buzz(10);
+    clToast('Catch logged');
+    replaceRoot({type:'catchlog'});
+  };
+  detailEl.querySelectorAll('[data-share-catch]').forEach(function(b){ b.onclick=function(){ shareCatch(b.getAttribute('data-share-catch')); }; });
+  detailEl.querySelectorAll('[data-share-day]').forEach(function(b){ b.onclick=function(){ shareDay(b.getAttribute('data-share-day')); }; });
+  detailEl.querySelectorAll('[data-del-catch]').forEach(function(b){ b.onclick=function(){ delCatch(b.getAttribute('data-del-catch')); replaceRoot({type:'catchlog'}); }; });
+}
+function openCatchlog(){ if(typeof closeModals==='function') closeModals(); if(typeof exitMapTab==='function') exitMapTab(); replaceRoot({type:'catchlog'}); var p=document.getElementById('panel'); if(p) p.scrollTop=0; }
+
+/* ---- item <-> card (sender and recipient build the card the same way) ---- */
+function catchShareItem(c){
+  return { t:'fish-catch', sp:c.sp, z:c.z||null, water:c.water||'',
+    len:(c.len!=null&&c.len!=='')?c.len:null, unit:c.unit||'cm', rel:!!c.rel, when:c.when,
+    notes:c.notes?(c.notes.length>200?c.notes.slice(0,197)+'…':c.notes):'' };
+}
+function catchCard(it){
+  var chips=[];
+  if(it.len!=null) chips.push({label: it.len+' '+(it.unit||'cm')});
+  chips.push({label: it.rel?'Released':'Kept'});
+  if(it.z) chips.push({label:'Zone '+it.z});
+  var sub=[it.water, it.z?('Zone '+it.z):''].filter(Boolean).join(' · ');
+  return { eyebrow:'on-fishing', kicker:'Catch', emoji:'🎣', title:it.sp,
+    subtitle:sub, chips:chips.slice(0,4), meta:fmtDayLabel(dayKey(it.when)) };
+}
+function dayShareItem(key){
+  var items=loadCatches().filter(function(c){ return dayKey(c.when)===key; });
+  var waters=[]; var zones=[];
+  items.forEach(function(c){ if(c.water&&waters.indexOf(c.water)<0) waters.push(c.water); if(c.z&&zones.indexOf(c.z)<0) zones.push(c.z); });
+  return { t:'fish-day', date:key, when:(items[0]?items[0].when:key+'T12:00:00.000Z'),
+    water:waters.join(', '), zones:zones.sort(function(a,b){return a-b;}),
+    cs:items.map(function(c){ return { sp:c.sp, z:c.z||null, len:(c.len!=null&&c.len!=='')?c.len:null, unit:c.unit||'cm', rel:!!c.rel }; }) };
+}
+function dayCard(it){
+  var cs=it.cs||[]; var species={}; var counts={};
+  cs.forEach(function(c){ species[c.sp]=1; counts[c.sp]=(counts[c.sp]||0)+1; });
+  var chips=Object.keys(counts).slice(0,3).map(function(sp){ return { label: sp+(counts[sp]>1?(' ×'+counts[sp]):'') }; });
+  var sub=[it.water, (it.zones&&it.zones.length)?('Zone '+it.zones.join(', ')):''].filter(Boolean).join(' · ');
+  var nSp=Object.keys(species).length;
+  return { eyebrow:'on-fishing', kicker:'Day on the water', emoji:'🐟',
+    title: cs.length+(cs.length===1?' fish, ':' fish, ')+nSp+(nSp===1?' species':' species'),
+    subtitle:sub, chips:chips.slice(0,4), meta:fmtDayLabel(it.date) };
+}
+function shareCatch(id){
+  var c=loadCatches().filter(function(x){ return x.id===id; })[0]; if(!c) return;
+  if(!window.OnShare){ clToast('Sharing is not available'); return; }
+  var item=catchShareItem(c);
+  OnShare.share({ card:catchCard(item), item:item,
+    text:'I caught a '+c.sp+(c.z?(' in Zone '+c.z):'')+' in Ontario.' })
+    .then(function(r){ if(r==='fallback') clToast('Link copied, card saved'); });
+}
+function shareDay(key){
+  var item=dayShareItem(key); if(!item.cs.length) return;
+  if(!window.OnShare){ clToast('Sharing is not available'); return; }
+  OnShare.share({ card:dayCard(item), item:item,
+    text:'My day on the water in Ontario: '+item.cs.length+(item.cs.length===1?' fish.':' fish.') })
+    .then(function(r){ if(r==='fallback') clToast('Link copied, card saved'); });
+}
+
+/* ---- receive view (#/shared/<data>) ---- */
+function sharedTitle(it){ if(!it) return 'Shared'; if(it.t==='fish-day') return 'A day on the water'; return it.sp||'A catch'; }
+function sharedBody(it){
+  if(!it || (it.t!=='fish-catch' && it.t!=='fish-day'))
+    return '<p class="empty">This shared link could not be opened. It may be from a newer version of the app.</p>';
+  return '<div class="cl-recv"><div class="shared-card-wrap"><img id="shared-card-img" class="shared-card" alt="Shared '+esc(sharedTitle(it))+'"></div></div>'
+    +'<button class="btn" id="recv-log" style="width:100%">Start your own catch log</button>'
+    +'<button class="btn ghost" id="recv-explore" style="width:100%;margin-top:8px">Explore Ontario fishing zones</button>';
+}
+function wireShared(it){
+  if(it && (it.t==='fish-catch'||it.t==='fish-day') && window.OnShare){
+    var card=it.t==='fish-day'?dayCard(it):catchCard(it);
+    OnShare.makeCard(card).then(function(b){ if(!b) return; var img=document.getElementById('shared-card-img'); if(img) img.src=URL.createObjectURL(b); });
+  }
+  var a=document.getElementById('recv-log'); if(a) a.onclick=openCatchlog;
+  var e=document.getElementById('recv-explore'); if(e) e.onclick=function(){ goHomeNav(); };
+}
+
+/* ---- catch-log entry points (home card + More) ---- */
+(function(){
+  var b=document.getElementById('clentry'); if(b) b.onclick=openCatchlog;
+  var b2=document.getElementById('clentry-more'); if(b2) b2.onclick=openCatchlog;
+})();
+
 /* ---- shared footer tab bar ---- */
 var fishLearnRendered=false;
 function exitMapTab(){ document.body.classList.remove('tab-map');
@@ -1291,7 +1471,13 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModals(); });
 });
 
 /* ---------------- deep links ---------------- */
-function fromHash(){ const m=(location.hash||'').match(/zone=(\d+)/); if(m) selectZone(Number(m[1])); }
+if(window.OnShare) OnShare.config({ app:'on-fishing', base:'https://katsuma0.github.io/on-fishing/', accent:'#14804a' });
+function fromHash(){
+  const h=location.hash||'';
+  const s=h.match(/^#\/shared\/(.+)$/);
+  if(s){ const it=window.OnShare?OnShare.decode(s[1]):null; replaceRoot({type:'shared',item:it}); return; }
+  const m=h.match(/zone=(\d+)/); if(m) selectZone(Number(m[1]));
+}
 window.addEventListener('hashchange',fromHash);
 fromHash();
 

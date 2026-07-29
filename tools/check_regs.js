@@ -32,9 +32,9 @@ const CORR = loadJSON('corrections.json');
 // so the tool stays green for CI while still surfacing them for a human to fill
 // in from the official 2026 summary. Clear an entry once its value is verified.
 const KNOWN = {
-  '2|Northern Pike': 'protected-slot upper size is cut off in the source ("none between 70 cm to …")',
-  '11|Brook Trout': 'size and conservation limit are cut off in the source',
-  '10|Largemouth and Smallmouth Bass combined': 'limit text carries the trout/salmon aggregate ("total daily catch"); confirm the real bass limit',
+  // (all previously-pending entries have been verified against the official
+  //  2026 summary and corrected; add an entry here only if a value genuinely
+  //  cannot be recovered and is waiting on the source.)
 };
 const known = [];
 const isKnown = (z, sp) => Object.prototype.hasOwnProperty.call(KNOWN, z + '|' + sp);

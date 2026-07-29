@@ -5,8 +5,8 @@
      keeps working without a connection.
    Note: service workers only run over http(s) (e.g. GitHub Pages), not from a
    file:// path. */
-const CACHE = 'onfish-v0.87';
-const SHELL = ['./', './index.html', './styles.css', './app.js',
+const CACHE = 'onfish-v0.88';
+const SHELL = ['./', './index.html', './styles.css', './share.js', './app.js',
   './data/regulations.js', './data/fish.js', './data/ecosystem.js',
   './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png',
   './vendor/leaflet/leaflet.js', './vendor/leaflet/leaflet.css',
