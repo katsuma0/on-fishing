@@ -80,7 +80,9 @@
   .eyebrow{font-size:13px;font-weight:400;letter-spacing:.4px;text-transform:uppercase;color:var(--label-2)}
   .titlebar{display:flex;align-items:baseline;justify-content:space-between;gap:9px}
   h1{font-weight:700;font-size:34px;line-height:41px;letter-spacing:.37px;margin:2px 0 0;cursor:pointer}
-  .ver{appearance:none;font-weight:600;font-size:15px;color:var(--tint);white-space:nowrap;padding:6px 4px;margin:0}
+  .ver{position:relative;appearance:none;font-weight:600;font-size:15px;color:var(--tint);white-space:nowrap;padding:6px 4px;margin:0}
+  /* Fitts: the label stays small and quiet, the thing you aim at does not. */
+  .ver::after{content:"";position:absolute;top:50%;left:-6px;right:-6px;height:44px;transform:translateY(-50%)}
   .sub{color:var(--label-2);font-size:15px;margin-top:4px;line-height:1.4}
   .sub a{color:var(--tint)}
   .seclabel{font-size:13px;font-weight:400;letter-spacing:.4px;text-transform:uppercase;
@@ -103,7 +105,10 @@
   .gsearch svg{flex:none;color:var(--label-2);width:17px;height:17px}
   .gsearch input{border:none;background:none;outline:none;font-size:17px;width:100%;color:var(--label)}
   .gsearch input::placeholder{color:var(--label-2)}
-  .gclear{appearance:none;color:var(--label-2);font-size:16px;line-height:1;padding:2px 4px;display:none}
+  .gclear{position:relative;appearance:none;color:var(--label-2);font-size:16px;line-height:1;padding:2px 4px;display:none}
+  /* Fitts: a clear "x" is a small glyph by convention, so the hit area is grown
+     underneath it rather than the glyph being made ugly. */
+  .gclear::after{content:"";position:absolute;top:50%;left:50%;width:44px;height:44px;transform:translate(-50%,-50%)}
   .gsearch.has .gclear{display:block}
   .gresults{margin:0 0 14px}
   .gresult{width:100%;text-align:left;appearance:none;background:var(--bg-elevated);
@@ -229,7 +234,7 @@
     border-radius:99px;padding:8px 14px;font-size:13px;font-weight:500;color:var(--label);box-shadow:0 2px 10px rgba(0,0,0,.14)}
   #togglezones,#toggleparks,#togglelabels{position:absolute;right:12px;z-index:1000;
     background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
-    border-radius:99px;padding:9px 15px;font-size:13px;white-space:nowrap;font-weight:600;color:var(--label);
+    border-radius:99px;padding:9px 16px;min-height:44px;font-size:13px;white-space:nowrap;font-weight:600;color:var(--label);
     cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.16);transition:background .12s,transform .1s}
   #togglezones{top:calc(12px + env(safe-area-inset-top))}
   #toggleparks{top:calc(58px + env(safe-area-inset-top))}
@@ -309,7 +314,10 @@
   .idrow b{color:var(--label);font-weight:600}
   /* appearance segmented control */
   .segmented{display:flex;background:var(--fill-strong);border-radius:9px;padding:2px;gap:2px}
-  .seg-opt{flex:1;text-align:center;padding:9px 8px;border-radius:7px;font-size:13px;font-weight:500;
+  /* Fitts: a segment is wide but was only 36px tall, a thin thing to hit from a
+     moving boat. Flex centring holds the label while the segment grows. */
+  .seg-opt{flex:1;display:flex;align-items:center;justify-content:center;min-height:44px;
+    text-align:center;padding:6px 8px;border-radius:7px;font-size:13px;font-weight:500;
     color:var(--label);cursor:pointer;transition:background .15s}
   .seg-opt.on{background:var(--bg-elevated);box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600}
 
@@ -384,6 +392,16 @@
     font-size:13px; line-height:1.45; color:var(--label-2); }
 
   /* ---- catch log + share --------------------------------------------- */
+  /* section label inside the catch form, so eight fields read as three chunks */
+  .cl-sec{font-size:13px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;
+    color:var(--label-2);margin:14px 0 8px}
+  .cl-sec:first-child{margin-top:4px}
+  /* species-caught progress: a real count against a real ceiling, never padded */
+  .clprog{background:var(--bg-elevated);border-radius:var(--r-sm);padding:13px 16px 15px;margin:12px 0 4px}
+  .clprog-top{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;color:var(--label)}
+  .clprog-n{font-size:14px;color:var(--label-2)}
+  .clprog-bar{display:block;margin-top:10px;height:6px;border-radius:3px;background:var(--fill-strong);overflow:hidden}
+  .clprog-fill{display:block;height:100%;border-radius:3px;background:var(--tint);transition:width .4s var(--ease)}
   .cl-field{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
   .cl-field>span{font-size:13px;font-weight:500;color:var(--label-2)}
   .cl-field input,.cl-field select,.cl-field textarea{width:100%;background:var(--fill);border:none;

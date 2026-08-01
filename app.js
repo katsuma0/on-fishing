@@ -1256,9 +1256,13 @@ function catchlogBody(){
   var form='<div class="group"><div class="list"><details class="cl-form" id="cl-form">'
     +'<summary class="cell tap"><span class="cell-body"><span class="cell-title">Log a catch</span></span>'
     +'<span class="chevron">'+CHEV+'</span></summary><div class="cell-detail">'
+    /* Three labelled chunks rather than one run of eight fields. Nobody holds
+       eight things in their head, and on a boat they are holding a rod too. */
+    +'<div class="cl-sec">What</div>'
     +'<label class="cl-field"><span>Species</span><select id="cf-sp">'+speciesOpts+'</select></label>'
     +'<label class="cl-field"><span>Zone</span><select id="cf-z">'+zoneOpts+'</select></label>'
     +'<label class="cl-field"><span>Water</span><input id="cf-water" placeholder="Lake or river (optional)"></label>'
+    +'<div class="cl-sec">Details</div>'
     +'<div class="cl-row">'
       +'<label class="cl-field grow"><span>Length</span><input id="cf-len" type="number" inputmode="decimal" min="0" step="0.1" placeholder="optional"></label>'
       +'<label class="cl-field"><span>Unit</span><select id="cf-unit"><option>cm</option><option>in</option></select></label>'
@@ -1267,11 +1271,20 @@ function catchlogBody(){
       +'<label class="cl-field grow"><span>Kept or released</span><select id="cf-rel"><option value="1">Released</option><option value="0">Kept</option></select></label>'
       +'<label class="cl-field grow"><span>Date</span><input id="cf-date" type="date" value="'+fishToday()+'"></label>'
     +'</div>'
-    +'<label class="cl-field"><span>Notes</span><textarea id="cf-notes" rows="2" placeholder="Bait, weather, who you were with (optional)"></textarea></label>'
+    +'<div class="cl-sec">Notes</div>'
+    +'<label class="cl-field"><textarea id="cf-notes" rows="2" placeholder="Bait, weather, who you were with (optional)"></textarea></label>'
     +'<button class="btn" id="cf-save" style="width:100%;margin-top:6px">Save catch</button>'
     +'</div></details></div></div>';
   if(!cats.length) return form+'<p class="empty">No catches yet. Log your first one, then share the card straight to Messages.</p>';
-  var out=form;
+  /* An honest, unfinished count. Ontario has a fixed list of game fish, so how
+     many you have caught is a real number with a real ceiling, and the gap is
+     what gets an angler back out on the water. */
+  var seen={}; cats.forEach(function(c){ if(c.sp) seen[c.sp]=1; });
+  var got=Object.keys(seen).length, tot=FISH_ID.length;
+  var out=form
+    +'<div class="clprog"><div class="clprog-top"><span>Species caught</span>'
+    +'<span class="clprog-n tnum">'+got+' of '+tot+'</span></div>'
+    +'<span class="clprog-bar"><span class="clprog-fill" style="width:'+Math.max(2,Math.round(got/tot*100))+'%"></span></span></div>';
   groupByDay(cats).forEach(function(g){
     out+='<div class="cl-day"><div class="cl-dayhead"><span class="seclabel grey">'+esc(fmtDayLabel(g.date))+'</span>'
       +'<button class="cl-share cl-shareday" data-share-day="'+esc(g.date)+'">Share day</button></div>';
