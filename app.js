@@ -145,7 +145,7 @@ function buzz(ms){
   }catch(e){}
   try{ if(navigator.vibrate) navigator.vibrate(ms); }catch(e){} }
 document.addEventListener('click',function(e){
-  if(e.target&&e.target.closest&&e.target.closest('button,.srow,.trow,.fcard,.frow,.xapp,.fmz')) buzz(5);
+  if(e.target&&e.target.closest&&e.target.closest('button,.srow,.trow,.fcard,.frow,.cell,.fmz')) buzz(5);
 },{capture:true});
 const SERVICE = "https://ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/LIO_OPEN_DATA/LIO_Open07/MapServer/14";
 const ZONE_FIELD = "FISHERIES_MANAGEMENT_ZONE_ID";
@@ -1185,6 +1185,9 @@ function fishBody(name){
   return html;
 }
 
+/* The trailing chevron, the same glyph inlined on the rows in index.html. */
+const CHEV='<svg viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>';
+
 /* ---------------- sheets ---------------- */
 const backdrop=document.getElementById('backdrop');
 const versionsEl=document.getElementById('versions');
@@ -1193,8 +1196,11 @@ function fillAboutStats(){
   var el=document.getElementById('aboutStats'); if(!el) return;
   var zones=(typeof REG!=='undefined')?Object.keys(REG).length:20;
   var fish=(typeof FISH_ID!=='undefined')?FISH_ID.length:0;
-  function row(k,v){ return '<div style="display:flex;justify-content:space-between;align-items:baseline;padding:11px 2px;border-top:.5px solid var(--separator)"><span>'+k+'</span><span style="color:var(--label-2);font-variant-numeric:tabular-nums">'+v+'</span></div>'; }
-  el.innerHTML=row('Fishing zones',zones)+row('Game fish',fish);
+  var ver=document.getElementById('verbtn');
+  function row(k,v){ return '<div class="cell"><span class="cell-body"><span class="cell-title">'+k+'</span></span>'
+    +'<span class="cell-value">'+v+'</span></div>'; }
+  el.innerHTML=row('Fishing zones',zones)+row('Game fish',fish)
+    +row('Version', ver?ver.textContent:'');
 }
 function openModal(el){ closeModals(); el.classList.add('on'); backdrop.classList.add('on'); el.scrollTop=0; }
 
@@ -1247,7 +1253,9 @@ function catchlogBody(){
   var cats=loadCatches();
   var speciesOpts=FISH_ID.map(function(f){ return '<option value="'+esc(f.name)+'">'+esc(f.name)+'</option>'; }).join('');
   var zoneOpts=''; for(var z=1;z<=20;z++) zoneOpts+='<option value="'+z+'">Zone '+z+'</option>';
-  var form='<details class="blk cl-form" id="cl-form"><summary>Log a catch</summary><div class="body">'
+  var form='<div class="group"><div class="list"><details class="cl-form" id="cl-form">'
+    +'<summary class="cell tap"><span class="cell-body"><span class="cell-title">Log a catch</span></span>'
+    +'<span class="chevron">'+CHEV+'</span></summary><div class="cell-detail">'
     +'<label class="cl-field"><span>Species</span><select id="cf-sp">'+speciesOpts+'</select></label>'
     +'<label class="cl-field"><span>Zone</span><select id="cf-z">'+zoneOpts+'</select></label>'
     +'<label class="cl-field"><span>Water</span><input id="cf-water" placeholder="Lake or river (optional)"></label>'
@@ -1261,7 +1269,7 @@ function catchlogBody(){
     +'</div>'
     +'<label class="cl-field"><span>Notes</span><textarea id="cf-notes" rows="2" placeholder="Bait, weather, who you were with (optional)"></textarea></label>'
     +'<button class="btn" id="cf-save" style="width:100%;margin-top:6px">Save catch</button>'
-    +'</div></details>';
+    +'</div></details></div></div>';
   if(!cats.length) return form+'<p class="empty">No catches yet. Log your first one, then share the card straight to Messages.</p>';
   var out=form;
   groupByDay(cats).forEach(function(g){
@@ -1421,7 +1429,12 @@ function renderFishLearn(){
     {t:'Cold water and weather', b:'Cold water is the real danger, even in summer. Wear a lifejacket, tell someone your plan, and watch the sky. If a storm builds, get off the water and away from tall lone trees. A sudden dunk in cold water saps your strength fast.'},
     {t:'Report a problem', b:'Seeing pollution, a fishing violation, or someone moving live fish between lakes? Report it to the ministry TIPS-MNR line at 1-877-847-7667.'}
   ];
-  el.innerHTML=A.map(function(a){ return '<details class="blk"><summary>'+a.t+'</summary><div class="body"><p style="margin:2px 0 0;font-size:14px;line-height:1.5;color:var(--label)">'+a.b+'</p></div></details>'; }).join('');
+  el.innerHTML='<div class="group"><div class="group-header">Learn and safety</div><div class="list">'
+    +A.map(function(a){ return '<details><summary class="cell tap">'
+      +'<span class="cell-body"><span class="cell-title">'+a.t+'</span></span>'
+      +'<span class="chevron">'+CHEV+'</span></summary>'
+      +'<div class="cell-detail"><p>'+a.b+'</p></div></details>'; }).join('')
+    +'</div></div>';
 }
 
 /* ---------------- themes, borrowed whole from Site Journal ----------------
