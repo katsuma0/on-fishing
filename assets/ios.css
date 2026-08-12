@@ -1183,18 +1183,20 @@ svg.leaflet-image-layer.leaflet-interactive path {
     height:.5px;background:var(--sep)}
   .ios-group .aboutbody{padding:4px 14px}
 
-  /* account view -------------------------------------------------------- */
-  .acct-hero{display:flex;justify-content:center;margin:18px 0 20px}
-  .acct-avatar{width:72px;height:72px;font-size:34px}
-  .acct-avatar svg{width:32px;height:32px}
-  .acct-stats{display:grid;grid-template-columns:repeat(3,1fr);padding:14px 6px}
-  .acct-stat{text-align:center;min-width:0}
-  .acct-stat b{display:block;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--label)}
-  .acct-stat span{display:block;font-size:12px;color:var(--label-2);margin-top:2px}
-  .acct-name{flex:1;min-width:0;background:none;border:0;outline:none;font-size:17px;
-    color:var(--label);text-align:right;padding:8px 0}
-  .acct-name::placeholder{color:var(--label-3)}
-  .acct-name:focus-visible{outline:2px solid var(--tint);outline-offset:2px;border-radius:6px}
+  /* account view: the shared profile screen, identical across the apps -- */
+  .acct-hero{display:flex;flex-direction:column;align-items:center;gap:8px;margin:14px 0 6px}
+  .acct-avatar{width:84px;height:84px;border-radius:50%;background:var(--fill-strong);color:var(--label);
+    display:flex;align-items:center;justify-content:center;font-size:var(--fs-large-title);font-weight:600;overflow:hidden}
+  .acct-avatar svg{width:40px;height:40px;color:var(--label-2)}
+  .acct-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 24px}
+  .acct-stat{background:var(--card);border-radius:var(--r-sm);padding:12px 8px;text-align:center;min-width:0}
+  .acct-stat b{display:block;font-size:var(--fs-title2);font-variant-numeric:tabular-nums;color:var(--label)}
+  .acct-stat span{display:block;font-size:var(--fs-caption2);font-weight:600;color:var(--label-2);
+    text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+  .acct-input{flex:1;min-width:0;background:none;border:0;outline:none;font-size:var(--fs-body);
+    color:var(--label);text-align:right;font-family:var(--font-sys);padding:8px 0}
+  .acct-input::placeholder{color:var(--label-3)}
+  .acct-input:focus-visible{outline:2px solid var(--tint);outline-offset:2px;border-radius:6px}
   label.ios-row{cursor:text}
 
   /* header ------------------------------------------------------------- */
@@ -1405,8 +1407,16 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .sheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;transform:translateY(102%);
     width:min(540px,100%);background:var(--bg);z-index:60;border-radius:12px 12px 0 0;
     padding:8px 16px calc(24px + env(safe-area-inset-bottom));box-shadow:0 -1px 0 var(--separator);
-    transition:transform .34s var(--ease);max-height:92vh;overflow:auto}
+    transition:transform .34s var(--ease);overflow:auto;
+    /* dvh, not vh: on iOS Safari vh includes the collapsed toolbar area, which
+       pushed the sheet top off screen once the keyboard opened */
+    max-height:calc(100dvh - var(--sa-top) - 12px)}
   .sheet.on{transform:translateY(0)}
+  /* the sheet carries its own 16px padding, so inset groups lose theirs */
+  .sheet .ios-group{margin-left:0;margin-right:0}
+  /* while a sheet is open the page behind must not move */
+  html.sheet-lock body{overflow:hidden}
+  html.sheet-lock #panel{overflow:hidden}
   .grabber{width:36px;height:5px;border-radius:3px;background:var(--label-3);margin:8px auto 16px}
   .verline{font-size:15px;color:var(--label);margin:0;line-height:var(--lh-subhead);padding:10px 0;
     border-bottom:.5px solid var(--separator);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1485,16 +1495,23 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .cl-field input:focus,.cl-field select:focus,.cl-field textarea:focus{box-shadow:0 0 0 2px var(--tint-soft)}
   .cl-row{display:flex;gap:10px}
   .cl-row .grow{flex:1}
+  /* the day-grouped timeline: an uppercase day header with its share action
+     over an inset group of catch rows, the same read as the wildlife journal */
   .cl-day{margin-top:14px}
-  .cl-dayhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 2px 8px}
-  .cl-catch .cl-note{font-style:italic}
-  .cl-actions{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
-  .cl-share{appearance:none;border:none;background:var(--tint-soft);color:var(--tint);
+  .cl-dayhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 7px;padding:0 4px}
+  .cl-dayhead .group-header{padding:0}
+  .cl-day .ios-group{margin-bottom:20px}
+  .cl-fishtile{background:var(--fill-strong);overflow:hidden}
+  .cl-fishtile img{width:100%;height:100%;object-fit:cover;display:block}
+  .cl-share{position:relative;appearance:none;border:none;background:var(--tint-soft);color:var(--tint);
     font-weight:600;font-size:13px;border-radius:99px;padding:6px 14px;cursor:pointer}
+  /* Fitts: the pill stays quiet, the thing you aim at is 44px tall */
+  .cl-share::after{content:"";position:absolute;top:50%;left:50%;min-width:44px;width:100%;height:44px;
+    transform:translate(-50%,-50%)}
   .cl-share:active{opacity:.55}
-  .cl-del{appearance:none;border:none;background:none;color:var(--label-3);font-size:15px;line-height:1;
-    padding:2px 6px;cursor:pointer}
-  .cl-del:active{color:var(--red)}
+  /* catch detail sheet */
+  .cd-img{width:100%;max-height:180px;object-fit:contain;background:var(--fill);border-radius:12px;
+    display:block;margin-bottom:12px}
   .btn.ghost{background:var(--fill-strong);color:var(--tint)}
   .btn.ghost:active{background:var(--fill)}
   .cl-recv{max-width:420px;margin:6px auto 14px}
