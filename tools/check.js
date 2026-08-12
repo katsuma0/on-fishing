@@ -63,6 +63,9 @@ try {
   var idxMissing = refs.filter(function (u) { return u && !fs.existsSync(rel(u)); });
   if (idxMissing.length) bad('index.html references a missing file', idxMissing.join(', ')); else ok('all ' + refs.length + ' local references exist');
   if (/share\.js/.test(idx) && idx.indexOf('share.js') < idx.indexOf('app.js')) ok('share.js loads before app.js'); else bad('share.js order', 'missing or after app.js');
+  var cssLinks = (idx.match(/<link rel="stylesheet" href="([^"]+)"/g) || []).map(function (m) { return m.replace(/^.*href="/, '').replace(/"$/, ''); });
+  if (cssLinks.length === 1 && cssLinks[0] === 'assets/ios.css') ok('one stylesheet, assets/ios.css'); else bad('stylesheet', 'expected exactly assets/ios.css, got ' + JSON.stringify(cssLinks));
+  if (!/styles\.css|vendor\/leaflet\/leaflet\.css/.test(idx)) ok('no legacy stylesheet references (styles.css, leaflet.css folded into ios.css)'); else bad('legacy stylesheet reference', 'index.html still mentions styles.css or leaflet.css');
 } catch (e) { bad('index.html', e.message); }
 
 // ---- 4. service worker ----

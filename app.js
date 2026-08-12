@@ -546,10 +546,10 @@ map.on('zoomend',updateParkLabels); updateParkLabels();
 function openParkPin(p){
   const el=document.createElement('div');
   const nm=document.createElement('div'); nm.textContent=p.name;
-  nm.style.cssText='font-weight:800;font-size:13.5px;margin-bottom:4px;color:var(--ink)';
+  nm.style.cssText='font-weight:800;font-size:13px;margin-bottom:4px;color:var(--ink)';
   const a=document.createElement('a'); a.textContent='Open in ON Camp';
   a.href=SJ_URL+'#park='+p.id;
-  a.style.cssText='color:var(--forest);font-weight:700;font-size:12.5px;text-decoration:underline;text-underline-offset:2px';
+  a.style.cssText='color:var(--forest);font-weight:700;font-size:13px;text-decoration:underline;text-underline-offset:2px';
   if(EMBED&&window.parent!==window){
     a.href='#'; a.onclick=e=>{ e.preventDefault(); parent.postMessage({type:'sj-open-park',id:p.id},'*'); };
   }
@@ -711,12 +711,14 @@ function titleOf(v){
   if(v.type==='zone') return 'Zone '+v.z;
   if(v.type==='fish') return v.name;
   if(v.type==='catchlog') return 'Catch log';
+  if(v.type==='account') return 'Account';
   if(v.type==='shared') return sharedTitle(v.item);
   return v.w.n;
 }
 function subOf(v){
   if(v.type==='zone') return (zoneMeta[v.z]&&zoneMeta[v.z].name)?esc(zoneMeta[v.z].name):'Seasons and limits';
   if(v.type==='catchlog'){ const n=loadCatches().length; return n?(n+(n===1?' catch logged':' catches logged')):'On your phone, ready to share'; }
+  if(v.type==='account') return 'On this phone only';
   if(v.type==='shared') return 'Shared with you';
   if(v.type==='fish'){ const m=fishRegInfo(v.name).merged; let n=0,open=0; for(let z=1;z<=20;z++) if(m[z]){ n++; if(seasonStatus(m[z].rec.season).status==='open') open++; }
     return open+' of '+n+' zones open now'; }
@@ -731,6 +733,7 @@ function bodyOf(v){
   if(v.type==='water') return waterBody(v.w);
   if(v.type==='place') return placeBody(v.w);
   if(v.type==='catchlog') return catchlogBody();
+  if(v.type==='account') return accountBody();
   if(v.type==='shared') return sharedBody(v.item);
   return '';
 }
@@ -762,6 +765,7 @@ function wireBody(v){
   } else if(v.type==='water'||v.type==='place'){
     const zb=document.getElementById('wzone'); if(zb&&v.w.z) zb.onclick=()=>pushView({type:'zone',z:Number(v.w.z)});
   } else if(v.type==='catchlog'){ wireCatchlog();
+  } else if(v.type==='account'){ wireAccount();
   } else if(v.type==='shared'){ wireShared(v.item); }
 }
 function applyMapForView(v){
@@ -843,6 +847,10 @@ const IS_MAP = (typeof goToWater==='function');
 const gsearch=document.getElementById('gsearch');
 const gclear=document.getElementById('gclear');
 const rbox=document.getElementById('gresults');
+/* the search view lives in the guide panel and opens from the header button */
+const searchview=document.getElementById('searchview');
+function showSearchView(){ if(searchview) searchview.hidden=false; try{ searchEl.focus(); }catch(e){} }
+function hideSearchView(){ if(searchview) searchview.hidden=true; }
 let searchSeq=0;
 let lastWater=null;
 let navStack=[];   /* the detail panel is a stack: one back button pops it, home when empty */
@@ -1005,7 +1013,7 @@ function onSearch(){
 }
 searchEl.addEventListener('input', onSearch);
 gclear.addEventListener('click', ()=>{ searchEl.value=''; onSearch(); });
-searchEl.addEventListener('keydown', e=>{ if(e.key==='Escape'){ searchEl.value=''; onSearch(); searchEl.blur(); } });
+searchEl.addEventListener('keydown', e=>{ if(e.key==='Escape'){ searchEl.value=''; onSearch(); searchEl.blur(); hideSearchView(); } });
 
 function metaLine(w){
   const parts=[];
@@ -1197,8 +1205,8 @@ function fillAboutStats(){
   var zones=(typeof REG!=='undefined')?Object.keys(REG).length:20;
   var fish=(typeof FISH_ID!=='undefined')?FISH_ID.length:0;
   var ver=document.getElementById('verbtn');
-  function row(k,v){ return '<div class="cell"><span class="cell-body"><span class="cell-title">'+k+'</span></span>'
-    +'<span class="cell-value">'+v+'</span></div>'; }
+  function row(k,v){ return '<div class="ios-row ios-row--plain"><span class="ios-row-body"><span class="ios-row-title">'+k+'</span></span>'
+    +'<span class="ios-row-value">'+v+'</span></div>'; }
   el.innerHTML=row('Fishing zones',zones)+row('Game fish',fish)
     +row('Version', ver?ver.textContent:'');
 }
@@ -1314,7 +1322,67 @@ function wireCatchlog(){
   detailEl.querySelectorAll('[data-share-day]').forEach(function(b){ b.onclick=function(){ shareDay(b.getAttribute('data-share-day')); }; });
   detailEl.querySelectorAll('[data-del-catch]').forEach(function(b){ b.onclick=function(){ delCatch(b.getAttribute('data-del-catch')); replaceRoot({type:'catchlog'}); }; });
 }
-function openCatchlog(){ if(typeof closeModals==='function') closeModals(); if(typeof exitMapTab==='function') exitMapTab(); replaceRoot({type:'catchlog'}); var p=document.getElementById('panel'); if(p) p.scrollTop=0; }
+function openCatchlog(openForm){ if(typeof closeModals==='function') closeModals(); if(typeof exitMapTab==='function') exitMapTab(); replaceRoot({type:'catchlog'});
+  /* openForm must be exactly true: click handlers pass the event object */
+  if(openForm===true){ var f=document.getElementById('cl-form'); if(f) f.setAttribute('open',''); }
+  var p=document.getElementById('panel'); if(p) p.scrollTop=0; }
+
+/* ==================================================================
+   Account view: the avatar in the header opens it. The display name
+   lives on this phone only, and the stats come out of the catch log. */
+function displayName(){ try{ return (localStorage.getItem('onfish-name')||'').trim(); }catch(e){ return ''; } }
+function saveDisplayName(n){ try{ if(n) localStorage.setItem('onfish-name',n); else localStorage.removeItem('onfish-name'); }catch(e){} }
+function renderAvatar(){
+  var b=document.getElementById('acctbtn'); if(!b) return;
+  var n=displayName();
+  if(n) b.textContent=n[0].toUpperCase();
+  else b.innerHTML='<svg aria-hidden="true"><use href="assets/icons.svg#user"/></svg>';
+}
+function accountBody(){
+  var cats=loadCatches(), seen={}, zones={};
+  cats.forEach(function(c){ if(c.sp) seen[c.sp]=1; if(c.z) zones[c.z]=1; });
+  var got=Object.keys(seen).length, zn=Object.keys(zones).length, tot=FISH_ID.length;
+  var n=displayName();
+  var ver=document.getElementById('verbtn');
+  var logged=cats.length===1?'1 catch logged':cats.length+' catches logged';
+  return '<div class="acct-hero"><span class="ios-avatar acct-avatar" aria-hidden="true">'
+    +(n?esc(n[0].toUpperCase()):'<svg><use href="assets/icons.svg#user"/></svg>')+'</span></div>'
+    +'<div class="ios-group"><label class="ios-row ios-row--plain" for="acct-name">'
+    +'<span class="ios-row-body"><span class="ios-row-title">Display name</span></span>'
+    +'<input id="acct-name" class="acct-name" placeholder="Add your name" autocomplete="name" value="'+esc(n)+'">'
+    +'</label></div>'
+    +'<div class="ios-group acct-stats">'
+    +'<div class="acct-stat"><b>'+got+'</b><span>of '+tot+' game fish</span></div>'
+    +'<div class="acct-stat"><b>'+cats.length+'</b><span>'+(cats.length===1?'catch':'catches')+'</span></div>'
+    +'<div class="acct-stat"><b>'+zn+'</b><span>'+(zn===1?'zone fished':'zones fished')+'</span></div>'
+    +'</div>'
+    +'<div class="ios-group">'
+    +'<button class="ios-row" id="acct-catchlog" type="button">'
+    +'<span class="ios-tile ios-tile--blue"><svg aria-hidden="true"><use href="assets/icons.svg#fish"/></svg></span>'
+    +'<span class="ios-row-body"><span class="ios-row-title">Catch log</span><span class="ios-row-sub">'+logged+'</span></span>'
+    +'<span class="ios-chevron"><svg aria-hidden="true"><use href="assets/icons.svg#chevron-right"/></svg></span>'
+    +'</button>'
+    +'<div class="ios-row">'
+    +'<span class="ios-tile ios-tile--grey"><svg aria-hidden="true"><use href="assets/icons.svg#lock"/></svg></span>'
+    +'<span class="ios-row-body"><span class="ios-row-title">Visibility</span><span class="ios-row-sub">Your log stays on this phone</span></span>'
+    +'<span class="ios-row-value">Private</span>'
+    +'</div>'
+    +'<div class="ios-row ios-row--plain">'
+    +'<span class="ios-row-body"><span class="ios-row-title">Version</span></span>'
+    +'<span class="ios-row-value">'+(ver?esc(ver.textContent):'')+'</span>'
+    +'</div>'
+    +'</div>';
+}
+function wireAccount(){
+  var inp=document.getElementById('acct-name');
+  if(inp) inp.oninput=function(){ saveDisplayName(inp.value.trim()); renderAvatar();
+    var big=detailEl.querySelector('.acct-avatar');
+    if(big){ var n=displayName();
+      if(n) big.textContent=n[0].toUpperCase();
+      else big.innerHTML='<svg><use href="assets/icons.svg#user"/></svg>'; } };
+  var cl=document.getElementById('acct-catchlog'); if(cl) cl.onclick=function(){ openCatchlog(); };
+}
+function openAccount(){ if(typeof closeModals==='function') closeModals(); replaceRoot({type:'account'}); var p=document.getElementById('panel'); if(p) p.scrollTop=0; }
 
 /* ---- item <-> card (sender and recipient build the card the same way) ---- */
 function catchShareItem(c){
@@ -1383,16 +1451,27 @@ function wireShared(it){
   var e=document.getElementById('recv-explore'); if(e) e.onclick=function(){ goHomeNav(); };
 }
 
-/* ---- catch-log entry points (home card + More) ---- */
+/* ---- catch-log entry points (home card + More) and the ios header ---- */
 (function(){
-  var b=document.getElementById('clentry'); if(b) b.onclick=openCatchlog;
-  var b2=document.getElementById('clentry-more'); if(b2) b2.onclick=openCatchlog;
+  var b=document.getElementById('clentry'); if(b) b.onclick=function(){ openCatchlog(); };
+  var b2=document.getElementById('clentry-more'); if(b2) b2.onclick=function(){ openCatchlog(); };
+  var ab=document.getElementById('acctbtn'); if(ab) ab.onclick=openAccount;
+  var pb=document.getElementById('addcatchbtn'); if(pb) pb.onclick=function(){ openCatchlog(true); };
+  var sb=document.getElementById('searchbtn'); if(sb) sb.onclick=function(){ showTab('guide'); showSearchView(); };
+  renderAvatar();
 })();
 
-/* ---- shared footer tab bar ---- */
+/* ---- shared floating tab bar ---- */
 var fishLearnRendered=false;
-function exitMapTab(){ document.body.classList.remove('tab-map');
-  var tb=document.getElementById('tabbar'); if(tb) tb.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('active', b.dataset.tab==='guide'); }); }
+function markTab(tab){
+  var tb=document.getElementById('tabbar'); if(!tb) return;
+  tb.querySelectorAll('.tab').forEach(function(b){
+    var on=b.dataset.tab===tab;
+    b.classList.toggle('active',on);
+    if(on) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
+  });
+}
+function exitMapTab(){ document.body.classList.remove('tab-map'); markTab('guide'); }
 function setPanelView(view){
   var lh=document.getElementById('learnhome'), mh=document.getElementById('mainhome'),
       fh=document.getElementById('fishhome'), moreh=document.getElementById('morehome');
@@ -1413,12 +1492,11 @@ function setPanelView(view){
   }
 }
 function showTab(tab){
-  var tb=document.getElementById('tabbar');
   if(typeof closeModals==='function') closeModals();
   document.body.classList.toggle('tab-map', tab==='map');
+  if(tab!=='guide' && typeof hideSearchView==='function') hideSearchView();
   setPanelView(tab==='learn' ? 'learn' : tab==='more' ? 'more' : 'home');
-  if(tab==='search'){ var s=document.getElementById('search'); if(s) try{ s.focus(); }catch(e){} }
-  if(tb) tb.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('active', b.dataset.tab===tab); });
+  markTab(tab);
   if(tab!=='map' && typeof panelEl!=='undefined' && panelEl) panelEl.scrollTop=0;
   if(typeof buzz==='function') buzz(6);
 }
@@ -1442,10 +1520,11 @@ function renderFishLearn(){
     {t:'Cold water and weather', b:'Cold water is the real danger, even in summer. Wear a lifejacket, tell someone your plan, and watch the sky. If a storm builds, get off the water and away from tall lone trees. A sudden dunk in cold water saps your strength fast.'},
     {t:'Report a problem', b:'Seeing pollution, a fishing violation, or someone moving live fish between lakes? Report it to the ministry TIPS-MNR line at 1-877-847-7667.'}
   ];
-  el.innerHTML='<div class="group"><div class="group-header">Learn and safety</div><div class="list">'
-    +A.map(function(a){ return '<details><summary class="cell tap">'
-      +'<span class="cell-body"><span class="cell-title">'+a.t+'</span></span>'
-      +'<span class="chevron">'+CHEV+'</span></summary>'
+  el.innerHTML='<h2 class="ios-section-title">Learn</h2>'
+    +'<div class="group" style="margin-top:0"><div class="group-header">Learn and safety</div><div class="ios-group">'
+    +A.map(function(a){ return '<details><summary class="ios-row ios-row--plain">'
+      +'<span class="ios-row-body"><span class="ios-row-title">'+a.t+'</span></span>'
+      +'<span class="ios-chevron"><svg aria-hidden="true"><use href="assets/icons.svg#chevron-right"/></svg></span></summary>'
       +'<div class="cell-detail"><p>'+a.b+'</p></div></details>'; }).join('')
     +'</div></div>';
 }
@@ -1497,7 +1576,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModals(); });
 });
 
 /* ---------------- deep links ---------------- */
-if(window.OnShare) OnShare.config({ app:'on-fishing', base:'https://katsuma0.github.io/on-fishing/', accent:'#14804a' });
+if(window.OnShare) OnShare.config({ app:'on-fishing', base:'https://katsuma0.github.io/on-fishing/', accent:'#007AFF' });
 function fromHash(){
   const h=location.hash||'';
   const s=h.match(/^#\/shared\/(.+)$/);
