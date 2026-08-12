@@ -1,6 +1,7 @@
-/* Appearance: honour the system by default; an in-app toggle can pin light or dark. */
-/* Appearance: honour the system by default; an in-app toggle can pin light or dark. */
-(function(){try{var a=localStorage.getItem('onfish-appearance');if(a==='light'||a==='dark')document.documentElement.setAttribute('data-theme',a);}catch(e){}})();
+/* Appearance: the shared 'outdoors-appearance' key drives theme, palette,
+   face, text size and glass for every site on this origin. The pre-paint
+   script in index.html stamps the attributes before first paint; the
+   helpers below are the same logic for live changes from the panel. */
 
 /* REG loaded from data/ */
 /* FISH_ID loaded from data/ */
@@ -132,7 +133,43 @@ const SJ_THEMES = [ /* all light or medium and bold; the Wildlands alone keeps t
 const EMBED = /embed=parks/.test(location.hash||'');
 /* dark mode darkens the map too (the system, or the in-app Appearance toggle) */
 function fishPrefersDark(){ return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); }
-function fishAppearance(){ try{ return localStorage.getItem('onfish-appearance')||'auto'; }catch(e){ return 'auto'; } }
+var APPEAR_KEY='outdoors-appearance';
+var APPEAR_DEFAULT={theme:'auto',glass:'on',palette:'shore',face:'system',size:'m'};
+var APPEAR_VALID={
+  theme:['auto','light','dark'],
+  glass:['on','off'],
+  palette:['shore','field','granite'],
+  face:['system','rounded','serif','avenir','mono'],
+  size:['s','m','l','xl']
+};
+function loadAppearance(){
+  var raw=null;
+  try{ raw=JSON.parse(localStorage.getItem(APPEAR_KEY)||'null'); }catch(e){}
+  if(!raw||typeof raw!=='object'){
+    raw={};
+    try{   // one-time migration of the old per-app theme
+      var old=localStorage.getItem('onfish-appearance');
+      if(old==='light'||old==='dark') raw.theme=old;
+      localStorage.removeItem('onfish-appearance');
+      localStorage.setItem(APPEAR_KEY,JSON.stringify(raw));
+    }catch(e){}
+  }
+  var a={};
+  for(var k in APPEAR_DEFAULT){ if(!APPEAR_DEFAULT.hasOwnProperty(k)) continue;
+    a[k]=APPEAR_VALID[k].indexOf(raw[k])>=0?raw[k]:APPEAR_DEFAULT[k]; }
+  return a;
+}
+var APPEARANCE=loadAppearance();
+function applyAppearance(){
+  var root=document.documentElement, a=APPEARANCE;
+  function stamp(attr,val,isDefault){ if(isDefault) root.removeAttribute(attr); else root.setAttribute(attr,val); }
+  stamp('data-theme',a.theme,a.theme!=='light'&&a.theme!=='dark');
+  stamp('data-glass','off',a.glass!=='off');
+  stamp('data-palette',a.palette,a.palette==='shore');
+  stamp('data-face',a.face,a.face==='system');
+  stamp('data-textsize',a.size,a.size==='m');
+}
+function fishAppearance(){ return APPEARANCE.theme; }
 const THEME_DARK=(function(){ var a=fishAppearance(); return a==='dark' || (a==='auto' && fishPrefersDark()); })();
 if(THEME_DARK) document.body.classList.add('darkmap');
 
@@ -592,6 +629,21 @@ if(EMBED){
    the bottom showing just the title. Tap or pull the strip up to come back. */
 const panelEl=document.getElementById('panel');
 const pullwrap=document.getElementById('pullwrap');
+/* blended header: transparent at rest so it shows pure page background, and
+   the frosted wash arrives only once content actually scrolls underneath.
+   The panel is the scroller here, not the window, so it stamps the class. */
+(function(){
+  var hdr=document.querySelector('.ios-header'); if(!hdr||!panelEl) return;
+  function stampScrolled(){
+    /* either scroller can move depending on the tab, so watch both */
+    var on=panelEl.scrollTop>8||(window.scrollY||window.pageYOffset||0)>8;
+    hdr.classList.toggle('scrolled',on);
+    document.querySelectorAll('.nav').forEach(function(n){ n.classList.toggle('scrolled',on); });
+  }
+  panelEl.addEventListener('scroll',stampScrolled,{passive:true});
+  window.addEventListener('scroll',stampScrolled,{passive:true});
+  stampScrolled();
+})();
 let sheetMin=false, dragY=null, dragged=false;
 function setSheet(min){ sheetMin=min;
   panelEl.classList.toggle('min',min);
@@ -717,7 +769,7 @@ function titleOf(v){
 }
 function subOf(v){
   if(v.type==='zone') return (zoneMeta[v.z]&&zoneMeta[v.z].name)?esc(zoneMeta[v.z].name):'Seasons and limits';
-  if(v.type==='catchlog'){ const n=loadCatches().length; return n?(n+(n===1?' catch logged':' catches logged')):'On your phone, ready to share'; }
+  if(v.type==='catchlog'){ const n=loadCatches().length; return n?(n+(n===1?' catch logged':' catches logged')):'On this phone'; }
   if(v.type==='account') return 'On this phone only';
   if(v.type==='shared') return 'Shared with you';
   if(v.type==='fish'){ const m=fishRegInfo(v.name).merged; let n=0,open=0; for(let z=1;z<=20;z++) if(m[z]){ n++; if(seasonStatus(m[z].rec.season).status==='open') open++; }
@@ -1297,7 +1349,7 @@ function catchlogBody(){
     +'<button class="ios-row" id="cl-open-form" type="button">'
     +'<span class="ios-tile ios-tile--blue"><svg aria-hidden="true"><use href="assets/icons.svg#plus"/></svg></span>'
     +'<span class="ios-row-body"><span class="ios-row-title">Log a catch</span>'
-    +'<span class="ios-row-sub">Species, size, water and notes</span></span>'
+    +'<span class="ios-row-sub">Species, size, water, notes</span></span>'
     +'<span class="ios-chevron"><svg aria-hidden="true"><use href="assets/icons.svg#chevron-right"/></svg></span>'
     +'</button></div>';
   /* the quiet cross-app note, always the last thing on the screen */
@@ -1309,7 +1361,7 @@ function catchlogBody(){
     +'</a></div>'
     +'<p class="ios-group-foot">Your catches also appear in the ON Wildlife journal.</p>';
   if(!cats.length) return entry
-    +'<p class="empty">No catches yet. Log your first one, then share the card straight to Messages.</p>'+note;
+    +'<p class="empty">No catches yet. Log your first one.</p>'+note;
   /* An honest, unfinished count. Ontario has a fixed list of game fish, so how
      many you have caught is a real number with a real ceiling, and the gap is
      what gets an angler back out on the water. */
@@ -1354,7 +1406,7 @@ function catchFormHtml(){
       +'<label class="cl-field grow"><span>Date</span><input id="cf-date" type="date" value="'+fishToday()+'"></label>'
     +'</div>'
     +'<div class="cl-sec">Notes</div>'
-    +'<label class="cl-field"><textarea id="cf-notes" rows="2" placeholder="Bait, weather, who you were with (optional)"></textarea></label>'
+    +'<label class="cl-field"><textarea id="cf-notes" rows="2" placeholder="Bait, weather, company (optional)"></textarea></label>'
     +'<button class="btn" id="cf-save" style="width:100%;margin-top:6px">Save catch</button>';
 }
 function openCatchForm(){
@@ -1446,7 +1498,7 @@ function accountBody(){
     +'<span class="ios-row-body"><span class="ios-row-title">Name</span></span>'
     +'<input id="acct-name" class="acct-input" type="text" placeholder="Your name" autocomplete="name" enterkeyhint="done" value="'+esc(n)+'">'
     +'</label></div>'
-    +'<p class="ios-group-foot">Shown as your avatar initial, shared with the other outdoors apps on this device. It never leaves it.</p>'
+    +'<p class="ios-group-foot">Your avatar initial, shared with the other outdoors apps. Never leaves this phone.</p>'
     +'<div class="acct-stats">'
     +'<div class="acct-stat"><b class="tnum">'+got+'</b><span>of '+tot+' species</span></div>'
     +'<div class="acct-stat"><b class="tnum">'+cats.length+'</b><span>'+(cats.length===1?'catch':'catches')+'</span></div>'
@@ -1536,7 +1588,7 @@ function shareDay(key){
 function sharedTitle(it){ if(!it) return 'Shared'; if(it.t==='fish-day') return 'A day on the water'; return it.sp||'A catch'; }
 function sharedBody(it){
   if(!it || (it.t!=='fish-catch' && it.t!=='fish-day'))
-    return '<p class="empty">This shared link could not be opened. It may be from a newer version of the app.</p>';
+    return '<p class="empty">This link could not be opened. It may be from a newer app version.</p>';
   return '<div class="cl-recv"><div class="shared-card-wrap"><img id="shared-card-img" class="shared-card" alt="Shared '+esc(sharedTitle(it))+'"></div></div>'
     +'<button class="btn" id="recv-log" style="width:100%">Start your own catch log</button>'
     +'<button class="btn ghost" id="recv-explore" style="width:100%;margin-top:8px">Explore Ontario fishing zones</button>';
@@ -1585,7 +1637,7 @@ function setPanelView(view){
     if(mh) mh.hidden=true; if(fh) fh.hidden=true; if(detailEl) detailEl.hidden=true;
     var rb2=document.getElementById('gresults'); if(rb2) rb2.hidden=true;
     if(moreh) moreh.hidden=false;
-    if(typeof renderThemeRow==='function') renderThemeRow();
+    if(typeof renderAppearance==='function') renderAppearance();
     if(typeof fillAboutStats==='function') fillAboutStats();
   } else {
     if(typeof restoreList==='function') restoreList();
@@ -1646,21 +1698,65 @@ function buildVars(t){ var P=t.paper,I=t.ink,F=t.primary,dark=!!t.dark;
   if(dark){ v['--shadow-sm']='0 1px 2px rgba(0,0,0,.40)'; v['--shadow']='0 4px 16px rgba(0,0,0,.45)'; v['--shadow-btn']='0 3px 12px rgba(0,0,0,.5)'; }
   else { v['--shadow-sm']='0 1px 2px rgba(15,31,23,.06)'; v['--shadow']='0 2px 12px rgba(15,31,23,.08)'; v['--shadow-btn']='0 3px 10px rgba(0,0,0,.22)'; }
   return v; }
-function renderThemeRow(){
-  const el=document.getElementById('themeRow'); if(!el) return;
-  const cur=fishAppearance();
-  const opts=[['auto','Auto'],['light','Light'],['dark','Dark']];
-  el.innerHTML=opts.map(o=>`<button type="button" class="seg-opt${o[0]===cur?' on':''}" data-app="${o[0]}" aria-pressed="${o[0]===cur?'true':'false'}">${o[1]}</button>`).join('');
-  el.querySelectorAll('.seg-opt').forEach(b=>{ b.onclick=()=>setAppearance(b.dataset.app); });
+/* ----------------------------------------------- Appearance panel (More)
+   Five controls, identical markup and copy across the three apps: Theme,
+   Colours, Glass, Text size, Face. Every change applies live (data
+   attributes on <html>) and persists to the shared key. */
+function appearSegRow(label, action, cur, opts, width){
+  var segs='';
+  opts.forEach(function(o){
+    segs+='<button type="button" class="seg-opt'+(cur===o[0]?' on':'')+'" aria-pressed="'+(cur===o[0]?'true':'false')+'" data-action="'+action+'" data-v="'+o[0]+'">'+esc(o[1])+'</button>';
+  });
+  return '<div class="field"><span class="field-label">'+esc(label)+'</span><div style="flex:1"></div>'+
+    '<div class="segmented" style="width:'+width+'px">'+segs+'</div></div>';
 }
-function setAppearance(mode){
-  try{
-    if(mode==='auto'){ localStorage.removeItem('onfish-appearance'); document.documentElement.removeAttribute('data-theme'); }
-    else{ localStorage.setItem('onfish-appearance',mode); document.documentElement.setAttribute('data-theme',mode); }
-  }catch(e){}
-  const nowDark = mode==='dark' || (mode==='auto' && fishPrefersDark());
-  if(nowDark!==THEME_DARK){ location.reload(); return; }  /* the map tiles must swap */
-  renderThemeRow();
+function appearancePanelHtml(){
+  var a=APPEARANCE||APPEAR_DEFAULT;
+  var h='<div class="ios-group">';
+  h+=appearSegRow('Theme','appear-theme',a.theme,[['auto','Auto'],['light','Light'],['dark','Dark']],216);
+  // Colours: three swatch capsules, each showing its palette's three tones
+  h+='<div class="field pal-field"><span class="field-label">Colours</span><div style="flex:1"></div><div class="pal-row">';
+  [['shore','Shore'],['field','Field'],['granite','Granite']].forEach(function(p){
+    var on=a.palette===p[0];
+    h+='<span class="pal-opt"><button type="button" class="pal-swatch pal-swatch--'+p[0]+(on?' on':'')+'" data-action="appear-palette" data-v="'+p[0]+'" aria-label="'+p[1]+' colours" aria-pressed="'+(on?'true':'false')+'">'+
+      '<span class="dot"></span><span class="dot"></span><span class="dot"></span></button>'+
+      '<span class="pal-name">'+p[1]+'</span></span>';
+  });
+  h+='</div></div>';
+  h+='<div class="field"><span class="ios-row-body" style="flex:1"><span class="ios-row-title">Glass</span><span class="ios-row-sub">Frosted bars and buttons</span></span>'+
+    '<label class="switch"><input type="checkbox" id="glass-toggle" aria-label="Glass"'+(a.glass!=='off'?' checked':'')+'><span class="track"></span><span class="knob"></span></label></div>';
+  h+=appearSegRow('Text size','appear-size',a.size,[['s','S'],['m','M'],['l','L'],['xl','XL']],180);
+  [['system','System'],['rounded','Rounded'],['serif','Serif'],['avenir','Avenir'],['mono','Mono']].forEach(function(f){
+    var on=a.face===f[0];
+    h+='<button type="button" class="ios-row ios-row--plain" data-action="appear-face" data-v="'+f[0]+'" aria-pressed="'+(on?'true':'false')+'">'+
+      '<span class="ios-row-body"><span class="ios-row-title face-label--'+f[0]+'">'+f[1]+'</span></span>'+
+      (on?'<span class="face-check" aria-hidden="true"><svg><use href="assets/icons.svg#check"/></svg></span>':'')+
+      '</button>';
+  });
+  h+='</div>';
+  return h;
+}
+function renderAppearance(){
+  var el=document.getElementById('appearancePanel'); if(!el) return;
+  el.innerHTML=appearancePanelHtml();
+  el.querySelectorAll('[data-action]').forEach(function(b){
+    var act=b.getAttribute('data-action'), v=b.getAttribute('data-v');
+    var key=act==='appear-theme'?'theme':act==='appear-palette'?'palette':act==='appear-size'?'size':act==='appear-face'?'face':null;
+    if(key) b.onclick=function(){ setAppearanceField(key,v); };
+  });
+  var g=document.getElementById('glass-toggle');
+  if(g) g.onchange=function(){ setAppearanceField('glass', g.checked?'on':'off'); };
+}
+function setAppearanceField(key,val){
+  if(!APPEAR_VALID[key]||APPEAR_VALID[key].indexOf(val)<0) return;
+  APPEARANCE[key]=val;
+  try{ localStorage.setItem(APPEAR_KEY,JSON.stringify(APPEARANCE)); }catch(e){}
+  applyAppearance();
+  if(key==='theme'){
+    var nowDark = val==='dark' || (val==='auto' && fishPrefersDark());
+    if(nowDark!==THEME_DARK){ location.reload(); return; }  /* the map tiles must swap */
+  }
+  renderAppearance();
 }
 document.getElementById('verbtn').onclick=()=>openModal(versionsEl);
 const logo=document.getElementById('logobtn');

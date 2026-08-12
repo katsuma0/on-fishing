@@ -15,13 +15,38 @@
 <link rel="icon" type="image/png" href="icon-192.png"/>
 <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
 <link rel="stylesheet" href="assets/ios.css"/>
+<script>
+/* One tiny synchronous job before first paint: read the shared
+   'outdoors-appearance' key (one JSON key for every site on this origin)
+   and stamp its data attributes on <html> so theme, palette, face, text
+   size and glass are right with no flash. The old per-app theme in
+   'onfish-appearance' migrates into the key once. */
+(function () {
+  var d = document.documentElement, a = null;
+  try { a = JSON.parse(localStorage.getItem('outdoors-appearance') || 'null'); } catch (e) {}
+  if (!a || typeof a !== 'object') {
+    a = {};
+    try {
+      var old = localStorage.getItem('onfish-appearance');
+      if (old === 'light' || old === 'dark') a.theme = old;
+      localStorage.removeItem('onfish-appearance');
+      localStorage.setItem('outdoors-appearance', JSON.stringify(a));
+    } catch (e) {}
+  }
+  if (a.theme === 'light' || a.theme === 'dark') d.setAttribute('data-theme', a.theme);
+  if (a.glass === 'off') d.setAttribute('data-glass', 'off');
+  if (a.palette === 'field' || a.palette === 'granite') d.setAttribute('data-palette', a.palette);
+  if (a.face === 'rounded' || a.face === 'serif' || a.face === 'avenir' || a.face === 'mono') d.setAttribute('data-face', a.face);
+  if (a.size === 's' || a.size === 'l' || a.size === 'xl') d.setAttribute('data-textsize', a.size);
+})();
+</script>
 </head>
 <body>
 <div class="backdrop" id="backdrop"></div>
 <div class="sheet" id="versions" role="dialog" aria-modal="true" aria-label="Versions">
   <div class="grabber"></div>
   <div class="kind" style="margin-bottom:12px">Versions</div>
-  <div class="vlist"><div class="verline"><span class="vv">v0.93</span>One profile shared across the outdoors apps, and the catch log reads as a day by day timeline with a log sheet</div><div class="verline"><span class="vv">v0.92</span>The shared iOS look: floating tab capsule, header account and search</div><div class="verline"><span class="vv">v0.91</span>A katsuma.ca link in More, the home for all the apps</div><div class="verline"><span class="vv">v0.90</span>Bigger tap targets, the catch form reads in three chunks, and a count of the game fish you have caught</div><div class="verline"><span class="vv">v0.89</span>Rows line up now: every tap target runs the full width with its arrow at the far right</div><div class="verline"><span class="vv">v0.88</span>Catch log: note what you catch and share the card, or a whole day, straight to Messages</div><div class="verline"><span class="vv">v0.85</span>Each game fish is its own page now, with a note when a season is shared; fixed regulation typos</div><div class="verline"><span class="vv">v0.84</span>Search a park to jump to its zone; sharper home-screen icon</div><div class="verline"><span class="vv">v0.83</span>More is a full screen now, the map is bundled in for offline</div><div class="verline"><span class="vv">v0.82</span>Footer tabs: map, zones, search, learn and more, matched to the other apps</div><div class="verline"><span class="vv">v0.81</span>New title, one summary, about and stats</div><div class="verline"><span class="vv">v0.80</span>New look, one iOS style shared with ON Wildlife and ON Camp</div><div class="verline"><span class="vv">v0.78</span>One back button, a clear path, no more getting lost</div><div class="verline"><span class="vv">v0.73</span>Site Journal themes here too, dark map included</div><div class="verline"><span class="vv">v0.71</span>Fish ID, every species drawn and explained</div><div class="verline"><span class="vv">v0.70</span>Blue by default, it is water after all</div><div class="verline"><span class="vv">v0.69</span>One app with Site Journal, parks on the map</div><div class="verline"><span class="vv">v0.54</span>Search made fast, results paint in live</div><div class="verline"><span class="vv">v0.45</span>Phone sheet slides over the map</div><div class="verline"><span class="vv">v0.44</span>Search with category pills</div><div class="verline"><span class="vv">v0.41</span>Full lake pages from Fish ON-Line</div><div class="verline"><span class="vv">v0.37</span>Express edition released</div><div class="verline"><span class="vv">v0.30</span>Map redrawn on canvas, much smoother</div><div class="verline"><span class="vv">v0.26</span>Rebuilt on the shared design system</div><div class="verline"><span class="vv">v0.24</span>Every zone swept against the guide</div><div class="verline"><span class="vv">v0.19</span>Open today, species explorer, offline</div><div class="verline"><span class="vv">v0.13</span>Map wired to official zone boundaries</div><div class="verline"><span class="vv">v0.10</span>Seasons and limits out of the 148 page PDF</div></div>
+  <div class="vlist"><div class="verline"><span class="vv">v0.94</span>One appearance shared across the outdoors apps: theme, colours, glass, text size and face</div><div class="verline"><span class="vv">v0.93</span>One profile shared across the outdoors apps, and the catch log reads as a day by day timeline with a log sheet</div><div class="verline"><span class="vv">v0.92</span>The shared iOS look: floating tab capsule, header account and search</div><div class="verline"><span class="vv">v0.91</span>A katsuma.ca link in More, the home for all the apps</div><div class="verline"><span class="vv">v0.90</span>Bigger tap targets, the catch form reads in three chunks, and a count of the game fish you have caught</div><div class="verline"><span class="vv">v0.89</span>Rows line up now: every tap target runs the full width with its arrow at the far right</div><div class="verline"><span class="vv">v0.88</span>Catch log: note what you catch and share the card, or a whole day, straight to Messages</div><div class="verline"><span class="vv">v0.85</span>Each game fish is its own page now, with a note when a season is shared; fixed regulation typos</div><div class="verline"><span class="vv">v0.84</span>Search a park to jump to its zone; sharper home-screen icon</div><div class="verline"><span class="vv">v0.83</span>More is a full screen now, the map is bundled in for offline</div><div class="verline"><span class="vv">v0.82</span>Footer tabs: map, zones, search, learn and more, matched to the other apps</div><div class="verline"><span class="vv">v0.81</span>New title, one summary, about and stats</div><div class="verline"><span class="vv">v0.80</span>New look, one iOS style shared with ON Wildlife and ON Camp</div><div class="verline"><span class="vv">v0.78</span>One back button, a clear path, no more getting lost</div><div class="verline"><span class="vv">v0.73</span>Site Journal themes here too, dark map included</div><div class="verline"><span class="vv">v0.71</span>Fish ID, every species drawn and explained</div><div class="verline"><span class="vv">v0.70</span>Blue by default, it is water after all</div><div class="verline"><span class="vv">v0.69</span>One app with Site Journal, parks on the map</div><div class="verline"><span class="vv">v0.54</span>Search made fast, results paint in live</div><div class="verline"><span class="vv">v0.45</span>Phone sheet slides over the map</div><div class="verline"><span class="vv">v0.44</span>Search with category pills</div><div class="verline"><span class="vv">v0.41</span>Full lake pages from Fish ON-Line</div><div class="verline"><span class="vv">v0.37</span>Express edition released</div><div class="verline"><span class="vv">v0.30</span>Map redrawn on canvas, much smoother</div><div class="verline"><span class="vv">v0.26</span>Rebuilt on the shared design system</div><div class="verline"><span class="vv">v0.24</span>Every zone swept against the guide</div><div class="verline"><span class="vv">v0.19</span>Open today, species explorer, offline</div><div class="verline"><span class="vv">v0.13</span>Map wired to official zone boundaries</div><div class="verline"><span class="vv">v0.10</span>Seasons and limits out of the 148 page PDF</div></div>
 </div>
 <div class="sheet" id="catchsheet" role="dialog" aria-modal="true" aria-label="Log a catch">
   <div class="grabber"></div>
@@ -55,15 +80,15 @@
       <header class="appbar">
         <div class="titlebar">
           <h1 id="logobtn" tabindex="0" role="button">on-fishing</h1>
-          <button class="ver" id="verbtn">v0.93</button>
+          <button class="ver" id="verbtn">v0.94</button>
         </div>
-        <p class="sub">Ontario's 20 fishing zones, with seasons, limits, and what is open right now.
-          Not an official source, so check the <a href="https://www.ontario.ca/document/ontario-fishing-regulations-summary" target="_blank" rel="noopener">official summary</a> before you fish.</p>
+        <p class="sub">Ontario's 20 fishing zones: seasons, limits, what is open now.
+          Not official, so check the <a href="https://www.ontario.ca/document/ontario-fishing-regulations-summary" target="_blank" rel="noopener">official summary</a> before you fish.</p>
       </header>
       <div id="searchview" hidden>
         <div class="gsearch" id="gsearch">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-          <input id="search" inputmode="search" autocomplete="off" placeholder="Search waters, towns, fish, or a park">
+          <input id="search" inputmode="search" autocomplete="off" placeholder="Waters, towns, fish, parks">
           <button class="gclear" id="gclear" aria-label="Clear search">✕</button>
         </div>
         <div id="gresults" class="gresults" hidden></div>
@@ -72,7 +97,7 @@
         <div class="ios-group" style="margin-top:10px">
           <button class="ios-row" id="clentry" type="button">
             <span class="ios-tile ios-tile--blue"><svg aria-hidden="true"><use href="assets/icons.svg#fish"/></svg></span>
-            <span class="ios-row-body"><span class="ios-row-title">Catch log</span><span class="ios-row-sub">Log what you catch, then share your day</span></span>
+            <span class="ios-row-body"><span class="ios-row-title">Catch log</span><span class="ios-row-sub">Log a catch, share your day</span></span>
             <span class="ios-chevron"><svg aria-hidden="true"><use href="assets/icons.svg#chevron-right"/></svg></span>
           </button>
         </div>
@@ -96,7 +121,7 @@
           <div class="ios-group">
             <button class="ios-row" id="clentry-more" type="button">
               <span class="ios-tile ios-tile--blue"><svg aria-hidden="true"><use href="assets/icons.svg#fish"/></svg></span>
-              <span class="ios-row-body"><span class="ios-row-title">Catch log</span><span class="ios-row-sub">Log what you catch, then share your day</span></span>
+              <span class="ios-row-body"><span class="ios-row-title">Catch log</span><span class="ios-row-sub">Log a catch, share your day</span></span>
               <span class="ios-chevron"><svg aria-hidden="true"><use href="assets/icons.svg#chevron-right"/></svg></span>
             </button>
           </div>
@@ -104,10 +129,8 @@
 
         <div class="group">
           <div class="group-header">Appearance</div>
-          <div class="ios-group">
-            <div class="ios-row ios-row--plain"><div class="segmented" id="themeRow"></div></div>
-          </div>
-          <div class="group-footer">Auto follows your phone's light or dark setting.</div>
+          <div id="appearancePanel"></div>
+          <div class="group-footer">Auto follows your phone's light or dark setting. The rest is shared by every outdoors app on this device.</div>
         </div>
 
         <div class="group">
@@ -124,7 +147,7 @@
               <span class="ios-chevron"><svg aria-hidden="true"><use href="assets/icons.svg#chevron-right"/></svg></span>
             </a>
           </div>
-          <div class="group-footer">Three field guides for Ontario, one look. Take all three.</div>
+          <div class="group-footer">Three field guides, one look. Take all three.</div>
         </div>
 
         <div class="group">
