@@ -47,6 +47,24 @@
   --press-pill: rgba(120, 120, 128, .16);
   --shadow-float: 0 8px 24px rgba(0, 0, 0, .12);
 
+
+  /* Apple type scale (Dynamic Type at the default Large setting).
+     Sizes, line heights and tracking straight from the HIG; every
+     font-size in this file must be one of these. */
+  --font-sys: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+  --fs-large-title: 34px; --lh-large-title: 41px; --ls-large-title: 0.37px;
+  --fs-title1: 28px; --lh-title1: 34px; --ls-title1: 0.36px;
+  --fs-title2: 22px; --lh-title2: 28px; --ls-title2: 0.35px;
+  --fs-title3: 20px; --lh-title3: 25px; --ls-title3: 0.38px;
+  --fs-headline: 17px; --lh-headline: 22px; --ls-headline: -0.41px;
+  --fs-body: 17px; --lh-body: 22px; --ls-body: -0.41px;
+  --fs-callout: 16px; --lh-callout: 21px; --ls-callout: -0.32px;
+  --fs-subhead: 15px; --lh-subhead: 20px; --ls-subhead: -0.24px;
+  --fs-footnote: 13px; --lh-footnote: 18px; --ls-footnote: -0.08px;
+  --fs-caption1: 12px; --lh-caption1: 16px; --ls-caption1: 0;
+  --fs-caption2: 11px; --lh-caption2: 13px; --ls-caption2: 0.07px;
+  --fs-tab: 10px;   /* the one exception: tab bar labels, as on iOS */
+
   /* geometry */
   --r-group: 12px;
   --r-tile: 7px;
@@ -161,9 +179,10 @@ body {
   min-height: 100dvh;
   background: var(--bg);
   color: var(--label);
-  font-family: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
-  font-size: 17px;
-  line-height: 1.4;
+  font-family: var(--font-sys);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--ls-body);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
@@ -221,7 +240,7 @@ button {
   justify-content: center;
   background: var(--fill-strong);
   color: var(--label);
-  font-size: 19px;
+  font-size: var(--fs-title3);
   font-weight: 600;
   text-decoration: none;
   overflow: hidden;
@@ -251,10 +270,10 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  font-size: 26px;
+  font-size: var(--fs-title1);
   font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+  letter-spacing: var(--ls-title1);
+  line-height: var(--lh-title1);
   color: var(--label);
   margin: 26px 0 8px;
   padding-left: var(--gutter);
@@ -291,7 +310,8 @@ button {
 }
 /* small footnote under a group, outside the card */
 .ios-group-foot {
-  font-size: 13px;
+  font-size: var(--fs-footnote);
+  letter-spacing: var(--ls-footnote);
   color: var(--label-2);
   margin: -24px var(--gutter) 32px;
   padding: 8px 4px 0;
@@ -307,7 +327,8 @@ button {
   padding: 8px 14px;
   gap: 12px;
   color: var(--label);
-  font-size: 17px;
+  font-size: var(--fs-body);
+  letter-spacing: var(--ls-body);
   text-decoration: none;
   text-align: left;
   background: var(--card);
@@ -333,7 +354,9 @@ button {
 .ios-row-body { flex: 1; min-width: 0; }
 .ios-row-title {
   display: block;
-  font-size: 17px;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--ls-body);
   color: var(--label);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -341,7 +364,9 @@ button {
 }
 .ios-row-sub {
   display: block;
-  font-size: 13px;
+  font-size: var(--fs-footnote);
+  line-height: var(--lh-footnote);
+  letter-spacing: var(--ls-footnote);
   color: var(--label-2);
   margin-top: 1px;
   overflow: hidden;
@@ -352,7 +377,8 @@ button {
   flex: none;
   margin-left: auto;
   color: var(--label-2);
-  font-size: 17px;
+  font-size: var(--fs-body);
+  letter-spacing: var(--ls-body);
   font-variant-numeric: tabular-nums;
 }
 .ios-chevron {
@@ -417,7 +443,7 @@ button {
   padding: 0 14px;
   border-radius: 22px;
   color: var(--label-aa);
-  font-size: 10px;
+  font-size: var(--fs-tab);
   font-weight: 500;
   line-height: 1;
   text-decoration: none;
@@ -435,7 +461,8 @@ button {
 /* =====================================================================
    Leaflet 1.9.x (vendored), folded in so every page loads one
    stylesheet. Image urls point back at the vendored copy under
-   vendor/leaflet/images; the rules themselves are upstream, unchanged.
+   vendor/leaflet/images; the rules are upstream, unchanged apart from
+   the type sweep: families on var(--font-sys), sizes on the scale.
    ===================================================================== */
 /* required styles */
 
@@ -711,9 +738,8 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
 /* general typography */
 .leaflet-container {
-	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--font-sys);
 	font-size: 12px;
-	font-size: 0.75rem;
 	line-height: 1.5;
 	}
 
@@ -778,7 +804,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
 .leaflet-control-zoom-in,
 .leaflet-control-zoom-out {
-	font: bold 18px 'Lucida Console', Monaco, monospace;
+	font: bold 17px var(--font-sys);
 	text-indent: 1px;
 	}
 
@@ -833,7 +859,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
 .leaflet-control-layers label {
 	display: block;
 	font-size: 13px;
-	font-size: 1.08333em;
 	}
 .leaflet-control-layers-separator {
 	height: 0;
@@ -927,7 +952,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
 	margin: 13px 24px 13px 20px;
 	line-height: 1.3;
 	font-size: 13px;
-	font-size: 1.08333em;
 	min-height: 1px;
 	}
 .leaflet-popup-content p {
@@ -971,7 +995,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 	text-align: center;
 	width: 24px;
 	height: 24px;
-	font: 16px/24px Tahoma, Verdana, sans-serif;
+	font: 16px/24px var(--font-sys);
 	color: #757575;
 	text-decoration: none;
 	background: transparent;
@@ -1161,7 +1185,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
   /* account view -------------------------------------------------------- */
   .acct-hero{display:flex;justify-content:center;margin:18px 0 20px}
-  .acct-avatar{width:72px;height:72px;font-size:30px}
+  .acct-avatar{width:72px;height:72px;font-size:34px}
   .acct-avatar svg{width:32px;height:32px}
   .acct-stats{display:grid;grid-template-columns:repeat(3,1fr);padding:14px 6px}
   .acct-stat{text-align:center;min-width:0}
@@ -1181,19 +1205,19 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .ver{position:relative;appearance:none;font-weight:600;font-size:15px;color:var(--tint);white-space:nowrap;padding:6px 4px;margin:0}
   /* Fitts: the label stays small and quiet, the thing you aim at does not. */
   .ver::after{content:"";position:absolute;top:50%;left:-6px;right:-6px;height:44px;transform:translateY(-50%)}
-  .sub{color:var(--label-2);font-size:15px;margin-top:4px;line-height:1.4}
+  .sub{color:var(--label-2);font-size:15px;margin-top:4px;line-height:var(--lh-subhead)}
   .sub a{color:var(--tint)}
   .seclabel{font-size:13px;font-weight:400;letter-spacing:.4px;text-transform:uppercase;
     color:var(--label-2);margin:22px 4px 8px}
   .seclabel.grey{color:var(--label-2)}
   .zhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 0 2px}
-  .zhead h2{font-size:28px;font-weight:700;letter-spacing:-.3px;color:var(--label);margin:0;line-height:34px}
-  .meta{font-size:14px;color:var(--label-2);margin:4px 0 0;font-variant-numeric:tabular-nums}
+  .zhead h2{font-size:28px;font-weight:700;letter-spacing:var(--ls-title1);color:var(--label);margin:0;line-height:34px}
+  .meta{font-size:13px;color:var(--label-2);margin:4px 0 0;font-variant-numeric:tabular-nums}
   .navback{appearance:none;display:inline-flex;align-items:center;gap:3px;color:var(--tint);
     font-weight:400;font-size:17px;padding:8px 10px 8px 0;margin:6px 0 2px;transition:opacity .14s}
   .navback:active{opacity:.4}
   .navback svg{flex:none}
-  .vtitle{font-size:22px;font-weight:700;letter-spacing:-.3px;color:var(--label);margin:2px 0 0}
+  .vtitle{font-size:22px;font-weight:700;letter-spacing:var(--ls-title2);color:var(--label);margin:2px 0 0}
   .vhero{display:flex;gap:12px;align-items:flex-start;margin-top:2px}
   .empty{font-size:15px;color:var(--label-2);text-align:center;padding:40px 12px}
 
@@ -1214,12 +1238,12 @@ svg.leaflet-image-layer.leaflet-interactive path {
     transition:background .12s,transform .12s}
   .gresult:active{background:var(--fill);transform:scale(.99)}
   .tag{flex:0 0 46px;width:46px;height:22px;display:flex;align-items:center;justify-content:center;
-    font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;line-height:1;padding:0;
+    font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;line-height:1;padding:0;
     color:var(--on-tint);background:var(--tint);border-radius:99px}
   .tag.fish{background:var(--tint)} .tag.water{background:var(--blue)}
   .tag.town{background:var(--orange)} .tag.park{background:var(--green)} .tag.area{background:var(--orange)}
   .grow{flex:1;min-width:0}
-  .gt{display:block;font-weight:400;font-size:17px;letter-spacing:-.2px;color:var(--label)}
+  .gt{display:block;font-weight:400;font-size:17px;letter-spacing:var(--ls-body);color:var(--label)}
   .gs{display:block;font-size:13px;color:var(--label-2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .gnone{color:var(--label-2);font-size:15px;padding:20px 8px;text-align:center;background:var(--bg-elevated);border-radius:10px}
   .filters{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
@@ -1248,7 +1272,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   /* rows and cards ----------------------------------------------------- */
   .rrow{display:flex;justify-content:space-between;align-items:center;width:100%;
     background:var(--bg-elevated);color:var(--label);font-weight:400;font-size:17px;
-    border-radius:10px;padding:12px 16px;margin-bottom:8px;gap:10px;letter-spacing:-.2px}
+    border-radius:10px;padding:12px 16px;margin-bottom:8px;gap:10px;letter-spacing:var(--ls-body)}
   .rcount{color:var(--label-2);font-weight:400;font-size:15px;text-align:right}
   .spwrap{display:flex;flex-wrap:wrap;gap:8px}
   .spchip{display:inline-flex;background:var(--fill-strong);color:var(--label);
@@ -1259,9 +1283,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
   button.srow{cursor:pointer}
   button.srow:active{background:var(--fill);transform:scale(.99)}
   .srow .col{flex:1;min-width:0}
-  .srow .nm{font-size:17px;font-weight:400;letter-spacing:-.2px;color:var(--label)}
+  .srow .nm{font-size:17px;font-weight:400;letter-spacing:var(--ls-body);color:var(--label)}
   .srow[data-st="closed"] .nm{color:var(--label)}
-  .srow .mt{font-size:14px;color:var(--label-2);margin-top:2px;line-height:1.4}
+  .srow .mt{font-size:13px;color:var(--label-2);margin-top:2px;line-height:var(--lh-footnote)}
   .pill{flex:none;font-weight:600;font-size:13px;border-radius:99px;
     padding:5px 12px;color:var(--label-2);background:var(--fill-strong);min-width:62px;text-align:center}
   .pill.open{background:var(--tint-soft);color:var(--tint)}
@@ -1276,7 +1300,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .group{margin:18px 0 8px}
   .group-header{padding:0 4px 7px;font-size:13px;font-weight:400;letter-spacing:.4px;
     text-transform:uppercase;color:var(--label-2)}
-  .group-footer{padding:7px 4px 0;font-size:13px;color:var(--label-2);line-height:1.35}
+  .group-footer{padding:7px 4px 0;font-size:13px;color:var(--label-2);line-height:var(--lh-footnote)}
   .list{background:var(--bg-elevated);border-radius:var(--r-sm);overflow:hidden}
   .cell{position:relative;display:flex;align-items:center;gap:12px;min-height:48px;
     padding:11px 16px;background:var(--bg-elevated);color:var(--label);text-align:left;
@@ -1294,7 +1318,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     height:.5px;background:var(--separator)}
   .cell.tap:active{background:var(--fill)}
   .cell-body{flex:1 1 auto;min-width:0}
-  .cell-title{display:block;font-size:17px;letter-spacing:-.2px;color:var(--label)}
+  .cell-title{display:block;font-size:17px;letter-spacing:var(--ls-body);color:var(--label)}
   .cell-sub{display:block;font-size:13px;color:var(--label-2);margin-top:1px;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   /* margin-left:auto pins the value and the chevron to the right edge even on a
@@ -1312,7 +1336,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .list>details>summary .chevron{transition:transform .2s var(--ease)}
   .list>details[open]>summary .chevron{transform:rotate(90deg)}
   .cell-detail{padding:2px 16px 14px;border-top:.5px solid var(--separator)}
-  .cell-detail p{margin:12px 0 0;font-size:15px;line-height:1.5;color:var(--label)}
+  .cell-detail p{margin:12px 0 0;font-size:15px;line-height:var(--lh-subhead);color:var(--label)}
 
   details.blk{background:var(--bg-elevated);border-radius:10px;margin-bottom:8px;overflow:hidden}
   details.blk>summary{list-style:none;cursor:pointer;padding:12px 16px;font-weight:400;
@@ -1321,7 +1345,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   details.blk>summary:active{background:var(--fill)}
   details.blk .body{padding:2px 16px 14px}
   .body ul{margin:0;padding-left:18px}
-  .body li{font-size:15px;color:var(--label-2);line-height:1.5;margin-bottom:6px}
+  .body li{font-size:15px;color:var(--label-2);line-height:var(--lh-subhead);margin-bottom:6px}
   .wb{padding:9px 0;border-bottom:.5px solid var(--separator)}
   .wb:last-child{border-bottom:none}
   .wb b{display:block;font-size:15px;color:var(--label);margin-bottom:4px;font-weight:600}
@@ -1340,7 +1364,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   #togglezones.on,#toggleparks.on,#togglelabels.on{background:var(--tint);border-color:var(--tint);color:var(--on-tint)}
   #togglezones:active,#toggleparks:active,#togglelabels:active{transform:scale(.96)}
   .leaflet-popup-content-wrapper{border-radius:12px;font-family:inherit}
-  .leaflet-popup-content{font-size:14px;font-weight:600;color:var(--label)}
+  .leaflet-popup-content{font-size:13px;font-weight:600;color:var(--label)}
   .leaflet-container{font-family:inherit}
   /* map label halos are tied to the light tile imagery, not the app theme */
   .parklabel{background:none;border:none;box-shadow:none;padding:0;margin-top:-4px;
@@ -1384,33 +1408,33 @@ svg.leaflet-image-layer.leaflet-interactive path {
     transition:transform .34s var(--ease);max-height:92vh;overflow:auto}
   .sheet.on{transform:translateY(0)}
   .grabber{width:36px;height:5px;border-radius:3px;background:var(--label-3);margin:8px auto 16px}
-  .verline{font-size:15px;color:var(--label);margin:0;line-height:1.5;padding:10px 0;
+  .verline{font-size:15px;color:var(--label);margin:0;line-height:var(--lh-subhead);padding:10px 0;
     border-bottom:.5px solid var(--separator);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .verline:last-child{border-bottom:none}
   .verline .vv{font-weight:600;color:var(--tint);margin-right:10px;font-variant-numeric:tabular-nums}
   .vv{flex:none;font-weight:600;font-size:15px;color:var(--tint);font-variant-numeric:tabular-nums;min-width:46px}
   .kind{font-size:13px;font-weight:400;letter-spacing:.4px;text-transform:uppercase;color:var(--label-2)}
   .sheet a{color:var(--tint)}
-  .aboutbody p{margin:1em 0;font-size:16px;line-height:1.5;color:var(--label)}
-  .closing{font-size:13px;font-weight:400;color:var(--label-2);text-align:center;margin-top:16px;line-height:1.5}
+  .aboutbody p{margin:1em 0;font-size:16px;line-height:var(--lh-callout);color:var(--label)}
+  .closing{font-size:13px;font-weight:400;color:var(--label-2);text-align:center;margin-top:16px;line-height:var(--lh-footnote)}
   /* fish id */
   .frow{display:block;width:100%;text-align:left;appearance:none;cursor:pointer;
     background:var(--bg-elevated);border-radius:10px;padding:12px 16px;margin-bottom:8px;
-    font-weight:400;font-size:17px;color:var(--label);letter-spacing:-.2px;transition:background .12s,transform .12s}
+    font-weight:400;font-size:17px;color:var(--label);letter-spacing:var(--ls-body);transition:background .12s,transform .12s}
   .frow:active{background:var(--fill);transform:scale(.99)}
   .fgallery{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}
   .fcard{appearance:none;cursor:pointer;text-align:left;background:var(--bg-elevated);
     border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column;transition:transform .1s}
   .fcard:active{transform:scale(.97)}
   .fcard img{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--bg-secondary)}
-  .fcard span{font-weight:500;font-size:14px;color:var(--label);line-height:1.3;padding:8px 12px 12px}
+  .fcard span{font-weight:500;font-size:13px;color:var(--label);line-height:var(--lh-footnote);padding:8px 12px 12px}
   .idcard{background:var(--bg-elevated);border-radius:14px;overflow:hidden;margin-bottom:8px}
   .idcard img{width:100%;max-height:230px;object-fit:contain;background:var(--bg-secondary);display:block}
   .idcard .idbody{padding:12px 16px 14px}
-  .idname{font-weight:700;font-size:18px;letter-spacing:-.2px}
+  .idname{font-weight:700;font-size:17px;letter-spacing:var(--ls-headline)}
   .idtell{margin:6px 0 10px;padding-left:18px}
-  .idtell li{font-size:15px;color:var(--label);line-height:1.45;margin:3px 0}
-  .idrow{font-size:14px;color:var(--label-2);line-height:1.45;margin-top:4px}
+  .idtell li{font-size:15px;color:var(--label);line-height:var(--lh-subhead);margin:3px 0}
+  .idrow{font-size:13px;color:var(--label-2);line-height:var(--lh-footnote);margin-top:4px}
   .idrow b{color:var(--label);font-weight:600}
   /* appearance segmented control */
   .segmented{display:flex;background:var(--fill-strong);border-radius:9px;padding:2px;gap:2px}
@@ -1424,7 +1448,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   /* the footer pads 88px so the last content clears the floating tab bar */
   footer{width:100%;max-width:720px;margin:auto auto 0;flex:0 0 auto;
     padding:28px 16px calc(88px + env(safe-area-inset-bottom));color:var(--label-2);
-    font-size:13px;line-height:1.55}
+    font-size:13px;line-height:var(--lh-footnote)}
   footer a{color:var(--label-2);text-decoration:underline;text-underline-offset:2px}
 
   /* motion ------------------------------------------------------------- */
@@ -1440,7 +1464,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
   /* note shown on a fish page when its season/limit is a shared, combined group */
   .combinednote{ margin-top:14px; padding:10px 12px; background:var(--fill-strong); border-radius:10px;
-    font-size:13px; line-height:1.45; color:var(--label-2); }
+    font-size:13px; line-height:var(--lh-footnote); color:var(--label-2); }
 
   /* ---- catch log + share --------------------------------------------- */
   /* section label inside the catch form, so eight fields read as three chunks */
@@ -1450,7 +1474,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   /* species-caught progress: a real count against a real ceiling, never padded */
   .clprog{background:var(--bg-elevated);border-radius:var(--r-sm);padding:13px 16px 15px;margin:12px 0 4px}
   .clprog-top{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;color:var(--label)}
-  .clprog-n{font-size:14px;color:var(--label-2)}
+  .clprog-n{font-size:13px;color:var(--label-2)}
   .clprog-bar{display:block;margin-top:10px;height:6px;border-radius:3px;background:var(--fill-strong);overflow:hidden}
   .clprog-fill{display:block;height:100%;border-radius:3px;background:var(--tint);transition:width .4s var(--ease)}
   .cl-field{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
@@ -1478,7 +1502,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .shared-card{width:100%;height:auto;display:block;border-radius:22px;
     box-shadow:0 12px 34px rgba(0,0,0,.18);background:var(--fill)}
   .cl-toast{position:fixed;left:50%;bottom:calc(84px + var(--sa-bottom));transform:translate(-50%,10px);
-    background:var(--label);color:var(--bg-elevated);font-size:14px;font-weight:500;
+    background:var(--label);color:var(--bg-elevated);font-size:13px;font-weight:500;
     padding:10px 18px;border-radius:99px;box-shadow:var(--shadow);opacity:0;transition:opacity .2s,transform .2s;
     z-index:2000;pointer-events:none;max-width:80vw;text-align:center}
   .cl-toast.on{opacity:1;transform:translate(-50%,0)}

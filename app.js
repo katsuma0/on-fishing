@@ -546,10 +546,10 @@ map.on('zoomend',updateParkLabels); updateParkLabels();
 function openParkPin(p){
   const el=document.createElement('div');
   const nm=document.createElement('div'); nm.textContent=p.name;
-  nm.style.cssText='font-weight:800;font-size:13.5px;margin-bottom:4px;color:var(--ink)';
+  nm.style.cssText='font-weight:800;font-size:13px;margin-bottom:4px;color:var(--ink)';
   const a=document.createElement('a'); a.textContent='Open in ON Camp';
   a.href=SJ_URL+'#park='+p.id;
-  a.style.cssText='color:var(--forest);font-weight:700;font-size:12.5px;text-decoration:underline;text-underline-offset:2px';
+  a.style.cssText='color:var(--forest);font-weight:700;font-size:13px;text-decoration:underline;text-underline-offset:2px';
   if(EMBED&&window.parent!==window){
     a.href='#'; a.onclick=e=>{ e.preventDefault(); parent.postMessage({type:'sj-open-park',id:p.id},'*'); };
   }
