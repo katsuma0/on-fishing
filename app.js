@@ -741,12 +741,16 @@ function paintNav(){
   const v=navStack[navStack.length-1];
   if(!v){ goHomeNav(); return; }
   showDetail();
+  /* the account view follows the shared profile spec: no app title block,
+     no marketing copy, the avatar leads */
+  setAppbar(v.type!=='account');
   const backTxt = navStack.length>1 ? titleOf(navStack[navStack.length-2]) : 'All zones';
   const meta=subOf(v);
   detailEl.innerHTML =
     `<button class="navback" id="navback"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m15 18-6-6 6-6"/></svg><span>${esc(backTxt)}</span></button>`
-    + `<h2 class="vtitle">${esc(titleOf(v))}</h2>`
-    + (meta?`<p class="meta">${meta}</p>`:'')
+    + (v.type==='account' ? '' :
+        `<h2 class="vtitle">${esc(titleOf(v))}</h2>`
+        + (meta?`<p class="meta">${meta}</p>`:''))
     + bodyOf(v);
   document.getElementById('navback').onclick=popView;
   wireBody(v);
@@ -855,6 +859,8 @@ let searchSeq=0;
 let lastWater=null;
 let navStack=[];   /* the detail panel is a stack: one back button pops it, home when empty */
 function homeSections(on){ ['mainhome','fishhome'].forEach(id=>{ const e=document.getElementById(id); if(e) e.hidden=!on; }); }
+/* the app title block above the panel; the account view hides it */
+function setAppbar(on){ const a=document.querySelector('.appbar'); if(a) a.hidden=!on; }
 function showDetail(){ if(typeof exitMapTab==='function') exitMapTab(); rbox.hidden=true; detailEl.hidden=false; homeSections(false);
   { var _lh=document.getElementById('learnhome'), _mh2=document.getElementById('morehome'); if(_lh) _lh.hidden=true; if(_mh2) _mh2.hidden=true; }
   /* microtask: runs after the caller has set the new content but before paint,
@@ -862,7 +868,7 @@ function showDetail(){ if(typeof exitMapTab==='function') exitMapTab(); rbox.hid
   Promise.resolve().then(()=>{ detailEl.classList.remove('anim'); void detailEl.offsetWidth; detailEl.classList.add('anim'); }); }
 function showResults(){ rbox.hidden=false; detailEl.hidden=true; homeSections(false); }
 function restoreList(){ rbox.hidden=true; rbox.innerHTML=''; detailEl.hidden=true; detailEl.innerHTML='';
-  homeSections(true); if(typeof clearPin==='function') clearPin(); }
+  setAppbar(true); homeSections(true); if(typeof clearPin==='function') clearPin(); }
 
 // Word based matching; filler words are ignored so "zone 15 walleye" works.
 const FILLERS=['zone','lake','the'];
@@ -1199,7 +1205,13 @@ const CHEV='<svg viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-wid
 /* ---------------- sheets ---------------- */
 const backdrop=document.getElementById('backdrop');
 const versionsEl=document.getElementById('versions');
-function closeModals(){ versionsEl.classList.remove('on'); backdrop.classList.remove('on'); }
+const catchSheetEl=document.getElementById('catchsheet');
+const catchDetailSheetEl=document.getElementById('catchdetail');
+function closeModals(){
+  document.querySelectorAll('.sheet.on').forEach(function(s){ s.classList.remove('on'); });
+  backdrop.classList.remove('on');
+  document.documentElement.classList.remove('sheet-lock');
+}
 function fillAboutStats(){
   var el=document.getElementById('aboutStats'); if(!el) return;
   var zones=(typeof REG!=='undefined')?Object.keys(REG).length:20;
@@ -1210,7 +1222,9 @@ function fillAboutStats(){
   el.innerHTML=row('Fishing zones',zones)+row('Game fish',fish)
     +row('Version', ver?ver.textContent:'');
 }
-function openModal(el){ closeModals(); el.classList.add('on'); backdrop.classList.add('on'); el.scrollTop=0; }
+/* the page behind a sheet is scroll-locked so the sheet top stays reachable */
+function openModal(el){ closeModals(); el.classList.add('on'); backdrop.classList.add('on'); el.scrollTop=0;
+  document.documentElement.classList.add('sheet-lock'); }
 
 /* ==================================================================
    Catch log + share
@@ -1229,6 +1243,25 @@ function fishToday(){ var d=new Date(); return d.getFullYear()+'-'+pad2(d.getMon
 function dayKey(iso){ var d=new Date(iso); if(isNaN(d)) return String(iso).slice(0,10); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
 function fmtDayLabel(key){ var d=new Date(key+'T12:00:00'); if(isNaN(d)) return key;
   return d.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'}); }
+/* timeline day headers, the wildlife journal read: Today, Yesterday, then dates */
+function fmtDayHead(key){
+  var d=new Date(key+'T12:00:00'); if(isNaN(d)) return key;
+  var now=new Date();
+  var t0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  var d0=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  var diff=Math.round((t0-d0)/86400000);
+  if(diff===0) return 'Today';
+  if(diff===1) return 'Yesterday';
+  var opts={weekday:'short',month:'short',day:'numeric'};
+  if(d.getFullYear()!==now.getFullYear()) opts.year='numeric';
+  return d.toLocaleDateString('en-CA',opts);
+}
+function fmtTimeShort(iso){
+  var d=new Date(iso); if(isNaN(d)) return '';
+  var h=d.getHours(), m=d.getMinutes(), ap=h>=12?'PM':'AM';
+  h=h%12; if(h===0) h=12;
+  return h+':'+pad2(m)+' '+ap;
+}
 function uidc(){ return 'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function cval(id){ var e=document.getElementById(id); return e?(e.value||''):''; }
 
@@ -1244,29 +1277,70 @@ function groupByDay(cats){
 }
 
 function catchRow(c){
-  var bits=[]; if(c.z) bits.push('Zone '+c.z); if(c.water) bits.push(esc(c.water));
-  var size=(c.len!=null&&c.len!=='')?(c.len+' '+(c.unit||'cm')):'';
-  var line2=[size, c.rel?'Released':'Kept'].filter(Boolean).join(' · ');
-  return '<div class="srow cl-catch" data-id="'+esc(c.id)+'"><div class="col">'
-    +'<div class="nm">'+esc(c.sp)+'</div>'
-    +(bits.length?'<div class="mt">'+bits.join(' · ')+'</div>':'')
-    +'<div class="mt">'+line2+'</div>'
-    +(c.notes?'<div class="mt cl-note">“'+esc(c.notes)+'”</div>':'')
-    +'</div><div class="cl-actions">'
-    +'<button class="cl-share" data-share-catch="'+esc(c.id)+'">Share</button>'
-    +'<button class="cl-del" data-del-catch="'+esc(c.id)+'" aria-label="Delete this catch">✕</button>'
-    +'</div></div>';
+  var sub=[fmtTimeShort(c.when),
+    (c.len!=null&&c.len!=='')?(c.len+' '+(c.unit||'cm')):'',
+    c.rel?'Released':'Kept',
+    c.water?esc(c.water):''].filter(Boolean).join(' · ');
+  var tile=c.img
+    ?'<span class="ios-tile cl-fishtile"><img src="fish/'+esc(c.img)+'.jpg" alt=""></span>'
+    :'<span class="ios-tile ios-tile--blue"><svg aria-hidden="true"><use href="assets/icons.svg#fish"/></svg></span>';
+  return '<button class="ios-row" type="button" data-open-catch="'+esc(c.id)+'">'
+    +tile
+    +'<span class="ios-row-body"><span class="ios-row-title">'+esc(c.sp)+'</span>'
+    +'<span class="ios-row-sub">'+sub+'</span></span>'
+    +'<span class="ios-chevron"><svg aria-hidden="true"><use href="assets/icons.svg#chevron-right"/></svg></span>'
+    +'</button>';
 }
 function catchlogBody(){
   var cats=loadCatches();
+  var entry='<div class="ios-group" style="margin-top:14px">'
+    +'<button class="ios-row" id="cl-open-form" type="button">'
+    +'<span class="ios-tile ios-tile--blue"><svg aria-hidden="true"><use href="assets/icons.svg#plus"/></svg></span>'
+    +'<span class="ios-row-body"><span class="ios-row-title">Log a catch</span>'
+    +'<span class="ios-row-sub">Species, size, water and notes</span></span>'
+    +'<span class="ios-chevron"><svg aria-hidden="true"><use href="assets/icons.svg#chevron-right"/></svg></span>'
+    +'</button></div>';
+  /* the quiet cross-app note, always the last thing on the screen */
+  var note='<div class="ios-group">'
+    +'<a class="ios-row" id="cl-wildlife-link" href="https://katsuma0.github.io/on-wildlife/" target="_blank" rel="noopener">'
+    +'<span class="ios-tile ios-tile--green"><svg aria-hidden="true"><use href="assets/icons.svg#paw"/></svg></span>'
+    +'<span class="ios-row-body"><span class="ios-row-title">Open ON Wildlife</span></span>'
+    +'<span class="ios-chevron"><svg aria-hidden="true"><use href="assets/icons.svg#link-out"/></svg></span>'
+    +'</a></div>'
+    +'<p class="ios-group-foot">Your catches also appear in the ON Wildlife journal.</p>';
+  if(!cats.length) return entry
+    +'<p class="empty">No catches yet. Log your first one, then share the card straight to Messages.</p>'+note;
+  /* An honest, unfinished count. Ontario has a fixed list of game fish, so how
+     many you have caught is a real number with a real ceiling, and the gap is
+     what gets an angler back out on the water. */
+  var seen={}; cats.forEach(function(c){ if(c.sp) seen[c.sp]=1; });
+  var got=Object.keys(seen).length, tot=FISH_ID.length;
+  var out=entry
+    +'<div class="clprog"><div class="clprog-top"><span>Species caught</span>'
+    +'<span class="clprog-n tnum">'+got+' of '+tot+'</span></div>'
+    +'<span class="clprog-bar"><span class="clprog-fill" style="width:'+Math.max(2,Math.round(got/tot*100))+'%"></span></span></div>';
+  groupByDay(cats).forEach(function(g){
+    out+='<div class="cl-day"><div class="cl-dayhead"><span class="group-header">'+esc(fmtDayHead(g.date))+'</span>'
+      +'<button class="cl-share cl-shareday" data-share-day="'+esc(g.date)+'" type="button">Share day</button></div>'
+      +'<div class="ios-group">';
+    g.items.forEach(function(c){ out+=catchRow(c); });
+    out+='</div></div>';
+  });
+  return out+note;
+}
+function wireCatchlog(){
+  var open=document.getElementById('cl-open-form');
+  if(open) open.onclick=function(){ openCatchForm(); };
+  detailEl.querySelectorAll('[data-share-day]').forEach(function(b){ b.onclick=function(){ shareDay(b.getAttribute('data-share-day')); }; });
+  detailEl.querySelectorAll('[data-open-catch]').forEach(function(b){ b.onclick=function(){ openCatchDetail(b.getAttribute('data-open-catch')); }; });
+}
+/* ---- the log form, a bottom sheet like the wildlife log sheet ---- */
+function catchFormHtml(){
   var speciesOpts=FISH_ID.map(function(f){ return '<option value="'+esc(f.name)+'">'+esc(f.name)+'</option>'; }).join('');
   var zoneOpts=''; for(var z=1;z<=20;z++) zoneOpts+='<option value="'+z+'">Zone '+z+'</option>';
-  var form='<div class="group"><div class="list"><details class="cl-form" id="cl-form">'
-    +'<summary class="cell tap"><span class="cell-body"><span class="cell-title">Log a catch</span></span>'
-    +'<span class="chevron">'+CHEV+'</span></summary><div class="cell-detail">'
-    /* Three labelled chunks rather than one run of eight fields. Nobody holds
-       eight things in their head, and on a boat they are holding a rod too. */
-    +'<div class="cl-sec">What</div>'
+  /* Three labelled chunks rather than one run of eight fields. Nobody holds
+     eight things in their head, and on a boat they are holding a rod too. */
+  return '<div class="cl-sec">What</div>'
     +'<label class="cl-field"><span>Species</span><select id="cf-sp">'+speciesOpts+'</select></label>'
     +'<label class="cl-field"><span>Zone</span><select id="cf-z">'+zoneOpts+'</select></label>'
     +'<label class="cl-field"><span>Water</span><input id="cf-water" placeholder="Lake or river (optional)"></label>'
@@ -1281,27 +1355,12 @@ function catchlogBody(){
     +'</div>'
     +'<div class="cl-sec">Notes</div>'
     +'<label class="cl-field"><textarea id="cf-notes" rows="2" placeholder="Bait, weather, who you were with (optional)"></textarea></label>'
-    +'<button class="btn" id="cf-save" style="width:100%;margin-top:6px">Save catch</button>'
-    +'</div></details></div></div>';
-  if(!cats.length) return form+'<p class="empty">No catches yet. Log your first one, then share the card straight to Messages.</p>';
-  /* An honest, unfinished count. Ontario has a fixed list of game fish, so how
-     many you have caught is a real number with a real ceiling, and the gap is
-     what gets an angler back out on the water. */
-  var seen={}; cats.forEach(function(c){ if(c.sp) seen[c.sp]=1; });
-  var got=Object.keys(seen).length, tot=FISH_ID.length;
-  var out=form
-    +'<div class="clprog"><div class="clprog-top"><span>Species caught</span>'
-    +'<span class="clprog-n tnum">'+got+' of '+tot+'</span></div>'
-    +'<span class="clprog-bar"><span class="clprog-fill" style="width:'+Math.max(2,Math.round(got/tot*100))+'%"></span></span></div>';
-  groupByDay(cats).forEach(function(g){
-    out+='<div class="cl-day"><div class="cl-dayhead"><span class="seclabel grey">'+esc(fmtDayLabel(g.date))+'</span>'
-      +'<button class="cl-share cl-shareday" data-share-day="'+esc(g.date)+'">Share day</button></div>';
-    g.items.forEach(function(c){ out+=catchRow(c); });
-    out+='</div>';
-  });
-  return out;
+    +'<button class="btn" id="cf-save" style="width:100%;margin-top:6px">Save catch</button>';
 }
-function wireCatchlog(){
+function openCatchForm(){
+  var body=document.getElementById('catchsheet-body'); if(!body||!catchSheetEl) return;
+  body.innerHTML=catchFormHtml();
+  openModal(catchSheetEl);   /* no autofocus: the keyboard waits until a field is tapped */
   var save=document.getElementById('cf-save');
   if(save) save.onclick=function(){
     var sp=cval('cf-sp'); if(!sp){ return; }
@@ -1309,29 +1368,65 @@ function wireCatchlog(){
     var len=(lenRaw!==''&&!isNaN(parseFloat(lenRaw)))?parseFloat(lenRaw):null;
     var f=FISH_ID.filter(function(x){ return x.name===sp; })[0];
     var date=cval('cf-date');
-    var when=date?new Date(date+'T12:00:00').toISOString():new Date().toISOString();
+    var when=(date&&date!==fishToday())?new Date(date+'T12:00:00').toISOString():new Date().toISOString();
     var notes=cval('cf-notes').trim();
     addCatch({ id:uidc(), sp:sp, img:f?f.img:'', z:Number(cval('cf-z'))||null,
       water:cval('cf-water').trim(), len:len, unit:cval('cf-unit')||'cm',
       rel:cval('cf-rel')==='1', when:when, notes:notes.length>240?notes.slice(0,237)+'…':notes });
+    closeModals();
     if(typeof buzz==='function') buzz(10);
     clToast('Catch logged');
     replaceRoot({type:'catchlog'});
   };
-  detailEl.querySelectorAll('[data-share-catch]').forEach(function(b){ b.onclick=function(){ shareCatch(b.getAttribute('data-share-catch')); }; });
-  detailEl.querySelectorAll('[data-share-day]').forEach(function(b){ b.onclick=function(){ shareDay(b.getAttribute('data-share-day')); }; });
-  detailEl.querySelectorAll('[data-del-catch]').forEach(function(b){ b.onclick=function(){ delCatch(b.getAttribute('data-del-catch')); replaceRoot({type:'catchlog'}); }; });
+}
+/* ---- catch detail, a sheet: the card view of one catch with its actions ---- */
+function openCatchDetail(id){
+  var c=loadCatches().filter(function(x){ return x.id===id; })[0]; if(!c) return;
+  var body=document.getElementById('catchdetail-body'); if(!body||!catchDetailSheetEl) return;
+  var rows=[];
+  if(c.water) rows.push(['Water',c.water]);
+  if(c.z) rows.push(['Zone','Zone '+c.z]);
+  if(c.len!=null&&c.len!=='') rows.push(['Length',c.len+' '+(c.unit||'cm')]);
+  rows.push(['Kept or released',c.rel?'Released':'Kept']);
+  rows.push(['When',fmtDayLabel(dayKey(c.when))]);
+  body.innerHTML='<div class="kind" style="margin-bottom:12px">'+esc(c.sp)+'</div>'
+    +(c.img?'<img class="cd-img" src="fish/'+esc(c.img)+'.jpg" alt="'+esc(c.sp)+'">':'')
+    +'<div class="ios-group" style="margin-bottom:16px">'
+    +rows.map(function(r){ return '<div class="ios-row ios-row--plain">'
+      +'<span class="ios-row-body"><span class="ios-row-title">'+esc(r[0])+'</span></span>'
+      +'<span class="ios-row-value">'+esc(String(r[1]))+'</span></div>'; }).join('')
+    +'</div>'
+    +(c.notes?'<div class="ios-group" style="margin-bottom:16px"><div class="ios-row ios-row--plain">'
+      +'<span class="ios-row-body"><span class="ios-row-title">Notes</span>'
+      +'<span class="ios-row-sub" style="white-space:normal">'+esc(c.notes)+'</span></span></div></div>':'')
+    +'<button class="btn" id="cd-share" style="width:100%" type="button">Share this catch</button>'
+    +'<button class="btn ghost" id="cd-del" style="width:100%;margin-top:8px;color:var(--red)" type="button">Delete catch</button>';
+  openModal(catchDetailSheetEl);
+  var s=document.getElementById('cd-share'); if(s) s.onclick=function(){ shareCatch(c.id); };
+  var d=document.getElementById('cd-del'); if(d) d.onclick=function(){
+    delCatch(c.id); closeModals(); clToast('Catch deleted'); replaceRoot({type:'catchlog'}); };
 }
 function openCatchlog(openForm){ if(typeof closeModals==='function') closeModals(); if(typeof exitMapTab==='function') exitMapTab(); replaceRoot({type:'catchlog'});
+  var p=document.getElementById('panel'); if(p) p.scrollTop=0;
   /* openForm must be exactly true: click handlers pass the event object */
-  if(openForm===true){ var f=document.getElementById('cl-form'); if(f) f.setAttribute('open',''); }
-  var p=document.getElementById('panel'); if(p) p.scrollTop=0; }
+  if(openForm===true) openCatchForm(); }
 
 /* ==================================================================
-   Account view: the avatar in the header opens it. The display name
-   lives on this phone only, and the stats come out of the catch log. */
-function displayName(){ try{ return (localStorage.getItem('onfish-name')||'').trim(); }catch(e){ return ''; } }
-function saveDisplayName(n){ try{ if(n) localStorage.setItem('onfish-name',n); else localStorage.removeItem('onfish-name'); }catch(e){} }
+   Account view: the avatar in the header opens it. One shared profile
+   for the three outdoors apps on this origin: the display name lives
+   under the JSON key 'outdoors-profile' ({name}), with a silent one
+   time migration from the old per app key onfish-name. The stats come
+   out of the catch log. */
+var PROFILE_KEY='outdoors-profile';
+(function(){ try{
+  if(localStorage.getItem(PROFILE_KEY)==null){
+    var old=(localStorage.getItem('onfish-name')||'').trim();
+    if(old){ localStorage.setItem(PROFILE_KEY,JSON.stringify({name:old})); localStorage.removeItem('onfish-name'); }
+  }
+}catch(e){} })();
+function displayName(){ try{ var p=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null'); return ((p&&p.name)||'').trim(); }catch(e){ return ''; } }
+function saveDisplayName(n){ n=String(n==null?'':n).trim();
+  try{ if(n) localStorage.setItem(PROFILE_KEY,JSON.stringify({name:n})); else localStorage.removeItem(PROFILE_KEY); }catch(e){} }
 function renderAvatar(){
   var b=document.getElementById('acctbtn'); if(!b) return;
   var n=displayName();
@@ -1345,16 +1440,17 @@ function accountBody(){
   var n=displayName();
   var ver=document.getElementById('verbtn');
   var logged=cats.length===1?'1 catch logged':cats.length+' catches logged';
-  return '<div class="acct-hero"><span class="ios-avatar acct-avatar" aria-hidden="true">'
-    +(n?esc(n[0].toUpperCase()):'<svg><use href="assets/icons.svg#user"/></svg>')+'</span></div>'
+  return '<div class="acct-hero"><div class="acct-avatar" aria-hidden="true">'
+    +(n?esc(n[0].toUpperCase()):'<svg><use href="assets/icons.svg#user"/></svg>')+'</div></div>'
     +'<div class="ios-group"><label class="ios-row ios-row--plain" for="acct-name">'
-    +'<span class="ios-row-body"><span class="ios-row-title">Display name</span></span>'
-    +'<input id="acct-name" class="acct-name" placeholder="Add your name" autocomplete="name" value="'+esc(n)+'">'
+    +'<span class="ios-row-body"><span class="ios-row-title">Name</span></span>'
+    +'<input id="acct-name" class="acct-input" type="text" placeholder="Your name" autocomplete="name" enterkeyhint="done" value="'+esc(n)+'">'
     +'</label></div>'
-    +'<div class="ios-group acct-stats">'
-    +'<div class="acct-stat"><b>'+got+'</b><span>of '+tot+' game fish</span></div>'
-    +'<div class="acct-stat"><b>'+cats.length+'</b><span>'+(cats.length===1?'catch':'catches')+'</span></div>'
-    +'<div class="acct-stat"><b>'+zn+'</b><span>'+(zn===1?'zone fished':'zones fished')+'</span></div>'
+    +'<p class="ios-group-foot">Shown as your avatar initial, shared with the other outdoors apps on this device. It never leaves it.</p>'
+    +'<div class="acct-stats">'
+    +'<div class="acct-stat"><b class="tnum">'+got+'</b><span>of '+tot+' species</span></div>'
+    +'<div class="acct-stat"><b class="tnum">'+cats.length+'</b><span>'+(cats.length===1?'catch':'catches')+'</span></div>'
+    +'<div class="acct-stat"><b class="tnum">'+zn+'</b><span>'+(zn===1?'zone fished':'zones fished')+'</span></div>'
     +'</div>'
     +'<div class="ios-group">'
     +'<button class="ios-row" id="acct-catchlog" type="button">'
@@ -1375,11 +1471,14 @@ function accountBody(){
 }
 function wireAccount(){
   var inp=document.getElementById('acct-name');
-  if(inp) inp.oninput=function(){ saveDisplayName(inp.value.trim()); renderAvatar();
-    var big=detailEl.querySelector('.acct-avatar');
-    if(big){ var n=displayName();
-      if(n) big.textContent=n[0].toUpperCase();
-      else big.innerHTML='<svg><use href="assets/icons.svg#user"/></svg>'; } };
+  if(inp){
+    inp.oninput=function(){ saveDisplayName(inp.value); renderAvatar();
+      var big=detailEl.querySelector('.acct-avatar');
+      if(big){ var n=displayName();
+        if(n) big.textContent=n[0].toUpperCase();
+        else big.innerHTML='<svg><use href="assets/icons.svg#user"/></svg>'; } };
+    inp.onkeydown=function(e){ if(e.key==='Enter') inp.blur(); };
+  }
   var cl=document.getElementById('acct-catchlog'); if(cl) cl.onclick=function(){ openCatchlog(); };
 }
 function openAccount(){ if(typeof closeModals==='function') closeModals(); replaceRoot({type:'account'}); var p=document.getElementById('panel'); if(p) p.scrollTop=0; }
@@ -1475,6 +1574,7 @@ function exitMapTab(){ document.body.classList.remove('tab-map'); markTab('guide
 function setPanelView(view){
   var lh=document.getElementById('learnhome'), mh=document.getElementById('mainhome'),
       fh=document.getElementById('fishhome'), moreh=document.getElementById('morehome');
+  if(typeof setAppbar==='function') setAppbar(true);
   if(lh) lh.hidden=true; if(moreh) moreh.hidden=true;
   if(view==='learn'){
     if(mh) mh.hidden=true; if(fh) fh.hidden=true; if(detailEl) detailEl.hidden=true;
@@ -1569,7 +1669,7 @@ logo.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); showTa
 backdrop.onclick=closeModals;
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModals(); });
 // swipe down to close, yielding to the sheet's own scroll
-[versionsEl].forEach(sh=>{
+[versionsEl,catchSheetEl,catchDetailSheetEl].filter(Boolean).forEach(sh=>{
   let sy=null;
   sh.addEventListener('touchstart',e=>{ sy = sh.scrollTop<=0 ? e.touches[0].clientY : null; },{passive:true});
   sh.addEventListener('touchmove',e=>{ if(sy!=null && e.touches[0].clientY-sy>70){ closeModals(); sy=null; } },{passive:true});
