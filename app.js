@@ -704,9 +704,19 @@ function nthWeekday(year,monthIdx,wd,n){
 }
 function parseToken(tok,year){
   tok=tok.trim().toLowerCase();
-  if(/before|after/.test(tok)) return null;
   if(/labour day/.test(tok)) return nthWeekday(year,8,1,1);
-  let m=tok.match(/^(first|second|third|fourth|fifth|1st|2nd|3rd|4th|5th)\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\s+in\s+([a-z]+)/);
+  /* "Friday before third Saturday in May": anchor on the nth weekday, then
+     walk to the nearest named weekday on the stated side */
+  const mb=tok.match(/^(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\s+(before|after)\s+(?:the\s+)?(first|second|third|fourth|fifth|1st|2nd|3rd|4th|5th)\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\s+in\s+([a-z]+)/);
+  if(mb && WD[mb[1]]!=null && ORD[mb[3]]!=null && WD[mb[4]]!=null && MONTHS[mb[5]]!=null){
+    const base=nthWeekday(year,MONTHS[mb[5]],WD[mb[4]],ORD[mb[3]]);
+    if(!base) return null;
+    const step=mb[2]==='before'?-1:1, d2=new Date(base);
+    do{ d2.setDate(d2.getDate()+step); }while(d2.getDay()!==WD[mb[1]]);
+    return d2;
+  }
+  if(/before|after/.test(tok)) return null;
+  let m=tok.match(/^(?:the\s+)?(first|second|third|fourth|fifth|1st|2nd|3rd|4th|5th)\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\s+in\s+([a-z]+)/);
   if(m && ORD[m[1]]!=null && WD[m[2]]!=null && MONTHS[m[3]]!=null) return nthWeekday(year,MONTHS[m[3]],WD[m[2]],ORD[m[1]]);
   m=tok.match(/^([a-z]+)\s+(\d{1,2})/);
   if(m && MONTHS[m[1]]!=null) return new Date(year,MONTHS[m[1]],parseInt(m[2],10));
@@ -722,8 +732,15 @@ function rangesOf(season,year){
     if(i<0){ unknown=true; continue; }
     const a=parseToken(part.slice(0,i),year), b=parseToken(part.slice(i+4),year);
     if(!a||!b){ unknown=true; continue; }
-    ranges.push([new Date(a.getFullYear(),a.getMonth(),a.getDate()),
-                 new Date(b.getFullYear(),b.getMonth(),b.getDate(),23,59,59)]);
+    const A=new Date(a.getFullYear(),a.getMonth(),a.getDate());
+    const B=new Date(b.getFullYear(),b.getMonth(),b.getDate(),23,59,59);
+    if(B<A){
+      /* a season that wraps the new year: both calendar halves are inside */
+      ranges.push([new Date(year,0,1),B]);
+      ranges.push([A,new Date(year,11,31,23,59,59)]);
+    }else{
+      ranges.push([A,B]);
+    }
   }
   return {ranges,unknown};
 }
@@ -739,6 +756,9 @@ function seasonStatus(season){
   const DAY=86400000;
   if(open){ const days=activeEnd?Math.ceil((activeEnd-now)/DAY):null;
     return {status:'open', soon:(days!=null&&days<=14)?{type:'closing',days}:null}; }
+  /* an unparsed half of the season might be the half open right now:
+     never call that Closed, say Check instead */
+  if(r.unknown) return {status:'unknown'};
   if(r.ranges.length){ const days=nextStart?Math.ceil((nextStart-now)/DAY):null;
     return {status:'closed', soon:(days!=null&&days<=14)?{type:'opening',days}:null}; }
   return {status:'unknown'};
